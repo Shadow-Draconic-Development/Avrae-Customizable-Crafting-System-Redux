@@ -1,0 +1,27 @@
+{
+    "history": [
+        "Test Item",
+        "Test Item 2"
+    ],
+    "current_item": [
+        "Test Item", // Item name
+        "uncommon", // Item category
+        "permanent", // Item type
+        1698361525, // Time of last crafting
+        250.0, // Cost of crafting
+        "Stealth", // Skill used 
+        false // Bypass
+    ],
+    "backup": {
+        "Test Item 2": [
+            "uncommon", // Item category
+            "permanent", // Item type
+            1698361525, // Time of last crafting
+            250.0, // Cost of crafting
+            "Religion", // Skill used
+            5, //Successes
+            0, // Failures
+            83.33 // Money back
+        ]
+    }
+}
