@@ -1,0 +1,127 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0; /* Light mode background */
+    color: #333; /* Light mode text */
+    padding: 10px;
+}
+
+/* Dark Mode */
+body.dark-mode {
+    background-color: #333; /* Dark mode background */
+    color: #f0f0f0; /* Dark mode text */
+}
+
+/* Header Container Styles */
+.header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative; /* To allow centering the h1 */
+}
+
+/* Style for h1 */
+h1 {
+    position: absolute; /* Position absolute to center within header-container */
+    left: 50%; /* Move h1 to center */
+    transform: translateX(-50%); /* Adjust position to center */
+    display: flex;
+    align-items: center;
+    font-size: 2.5rem;
+}
+
+img {
+    margin-left: auto; /* Push img to the right */
+}
+
+fieldset {
+    border: 1px solid #ccc; /* Light mode border */
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+/* Dark Mode Fieldset */
+body.dark-mode fieldset {
+    border: 1px solid #495057; /* Dark mode border */
+}
+
+legend {
+    padding: 0 10px;
+}
+
+button {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    background-color: #007bff; /* Light mode button */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Dark Mode Button */
+body.dark-mode button {
+    background-color: #495057; /* Dark mode button */
+    color: #fff;
+}
+
+button:hover {
+    background-color: #0056b3; /* Light mode button hover */
+}
+
+/* Dark Mode Button Hover */
+body.dark-mode button:hover {
+    background-color: #343a40; /* Dark mode button hover */
+}
+
+select {
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc; /* Light mode border */
+}
+
+/* Dark Mode Select */
+body.dark-mode select {
+    border: 1px solid #495057; /* Dark mode border */
+}
+
+#output {
+    margin-top: 20px;
+    border: 1px solid #ccc; /* Light mode border */
+    padding: 10px;
+    border-radius: 5px;
+    white-space: pre-wrap;
+}
+
+/* Dark Mode Output */
+body.dark-mode #output {
+    border: 1px solid #495057; /* Dark mode border */
+    background-color: #222; /* Dark mode background */
+    color: #f0f0f0; /* Dark mode text */
+}
+
+/* Link section */
+nav {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+nav a {
+    color: #007bff; /* Light mode link */
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 1.2rem;
+}
+
+/* Dark Mode Link */
+body.dark-mode nav a {
+    color: #17a2b8; /* Dark mode link */
+}
+
+nav a:hover {
+    text-decoration: underline;
+}

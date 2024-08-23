@@ -1,0 +1,83 @@
+embed
+<drac2>
+# *******************************************************
+# * This work includes material written by Seth Hartman (aka ShadowsStride)
+# * and is licensed under the Creative Commons Attribution 4.0 International 
+# * License available at https://creativecommons.org/licenses/by/4.0/legalcode.
+# *******************************************************
+
+def main(page_num: str, prefix: str) -> str:
+
+    try:
+        page_num = int(page_num)
+
+    except:
+        page_num = 1
+
+
+    if page_num < 1:
+        page_num = 1
+
+    elif page_num > 3:
+        page_num = 3:
+
+    else:
+        pass
+
+    match page_num:
+
+        case 1:
+            return "\n".join([
+                f"{prefix}craft <item_name> <item_category> <item_type/cost> <-b #> <-c #> <-s skill_name> <eadv/adv/dis> <-i>`: Starts/continues crafting session.",
+                "`<item_name>*`: Name of the item being crafted. Reminder: Use quotation marks for multi-word items.",
+                f"`<item_category>*`: Name of category. `{prefix}craft help 3` for more details",
+                f"`<item_type/cost>*`: If a cost-based category, name of the type. Otherwise, cost of the item in GP. `{prefix}craft help 3` for more details",
+                "`-b`: Adds a misc bonus to the check.",
+                "`-s skill_name`: Adds skill modifier of the name given. (This is retained item to item, `-s none` to clear skill)",
+                "`eadv/adv/dis`: Applies double advantage/advantage/disadvantage.",
+                "`-i`: Ignores training cooldown and cost (if first crafting session). DO NOT USE EXCEPT WHEN TOLD BY AN ADMIN.",
+                "`-succ*`: Success multiplier (multiplies the number of successes required)",
+                "",
+                "*Only is used when starting a new item."
+            ]), "", "https://raw.githubusercontent.com/SethHartman13/Avrae-Aliases-Snippets/master/Aliases/craft/images/main.png"
+
+        case 2:
+            return "\n".join([
+                # Clear/restore
+                f"`{prefix}craft clear`: Clears Crafting CCs so that a new item can be crafted, if `pro_rated_refund` is turned on, you will receive a refund.",
+                f"`{prefix}craft restore`: Restores Crafting CCs so that you undo a previous `{prefix}craft clear` or `{prefix}craft restore` (when you accidentally overwrite a crafting in progress).",
+                "If you recieved a refund on the item you cleared, it will try to take back that refund.",
+                "",
+                f"`{prefix}craft help #`: This subalias",
+                "",
+
+                # Log/History/List
+                f"`{prefix}craft log`: Checks crafting progress and lists any items that are in backup.",
+                f"`{prefix}craft history`: Lists crafting history.",
+                f"`{prefix}craft list <category_name/setting>`: `{prefix}craft list` lists all the crafting categories (and their types) along with settings.",
+                "`<category_name/setting>` Pulls up the specific details of a category/setting"
+                "",
+
+                # Edit
+                f"`{prefix}craft edit [success/failure] [#]`: Edits the crafting counters by the value given so that values can be changed manually."
+            ]), "", "https://raw.githubusercontent.com/SethHartman13/Avrae-Aliases-Snippets/master/Aliases/craft/images/main.png"
+
+        case _:
+            # More detailed category stuff
+            return "\n".join([
+                "Below is an image of the settings file located on [GitHub](https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/settings.jsonc)\n",
+                "Item categories are collections of item types. Typically, categories are magic item rarities. However, they can be whatever server staff sets them to be.\n",
+                "One use case could be potions as the item category and item types being potion rarity. This allows server staff to create exceptions to established crafting rules. If, using potions as an example, you wanted to make potions have different crafting rules than other magic items this would allow you to do such."
+            ]), "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/images/doc_help.png", ""
+
+
+# Random image
+f, image, thumb = main(&ARGS&)
+
+
+</drac2>
+-title "Someone Needs Help!"
+-f "{{f}}"
+-image "{{image}}"
+-thumb "{{thumb}}"
+-footer "{{prefix}}craft help {{l}}#> | 12/23/23 | ShadowsStride"

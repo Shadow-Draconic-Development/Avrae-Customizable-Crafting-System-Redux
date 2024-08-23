@@ -1,0 +1,157 @@
+embed
+<drac2>
+# *******************************************************
+# * This work includes material written by Seth Hartman (aka ShadowsStride)
+# * and is licensed under the Creative Commons Attribution 4.0 International License 
+# * available at https://creativecommons.org/licenses/by/4.0/legalcode.
+# *******************************************************
+
+
+def grab_settings_dictionary() -> dict:
+    """
+    Grabs the settings dictionary, prioritizes svar, but falls back on gvar just in case.
+
+    Return:
+        (dict): Settings dictionary
+    """
+
+    # Tries to grab the svar
+    setting_test = get_svar("crafting_settings", default="None")
+
+    # If the svar exists
+    if setting_test != "None":
+
+        # Load dictionary
+        settings_dictionary = load_json(setting_test)
+
+        # Checks if max_history exists, otherwise defaults to standard settings
+        try:
+            settings_dictionary['max_history']
+        except:
+            settings_dictionary['max_history'] = 15
+
+        return settings_dictionary
+
+    else:
+        return load_json(get_gvar("d2daf66a-dce2-481b-ab28-f37ffe072de7"))
+
+
+def main(input_list: list[str], ch = character(), settings_dictionary = grab_settings_dictionary()) -> list[str]:
+    """
+    Main program function
+
+    Args:
+        input_list (list[str]): List of inputs
+        ch = character(): Character object
+        settings_dictionary = grab_settings_dictionary(): Settings dictionary
+
+    Return:
+        (list[str]): Result
+    """
+    
+    # Tries to make first input a number
+    try:
+        list_num = int(input_list[0])
+
+        # If the number is below 1
+        if list_num < 1:
+            list_num = 1
+
+        # If the number is not below 1
+        else:
+            pass
+
+    # If it cannot make it a number
+    except:
+        list_num = 1
+
+    # Image urls
+    error_img = "https://raw.githubusercontent.com/SethHartman13/Avrae-Aliases-Snippets/master/Aliases/craft/images/error.png"
+    history_img = "https://raw.githubusercontent.com/SethHartman13/Avrae-Aliases-Snippets/master/Aliases/craft/images/history.png"
+
+    # Tries to check if the crafting dictionary exists
+    crafting_test = ch.get_cvar('crafting_dict', default="None")
+
+    # If the dictionary exists
+    if crafting_test != "None":
+        crafting_dictionary = load_json(crafting_test)
+
+        # Tries to pull a history, looks for more recent item
+        try:
+            found = False
+            for name in crafting_dictionary['history']:
+                if not found:
+                    if name == crafting_dictionary['name']:
+                        index_num = crafting_dictionary['history'].index(name)
+                        crafting_dictionary['history'][index_num] = f"{crafting_dictionary['history'][index_num]} <- Current/most recent"
+                        found = True
+
+                    else:
+                        pass
+        # No history
+        except:
+            history = False
+
+        # Tries to pull a backup, looks for item in backup
+        try:
+            found = False
+            if crafting_dictionary['backup']['success_cc'][0] != crafting_dictionary['backup']['success_cc'][1] and crafting_dictionary['backup']['failure_cc'][0] != crafting_dictionary['backup']['failure_cc'][1]:
+                for name in crafting_dictionary['history']:
+                    if not found:
+                        if name == crafting_dictionary['backup']['cvar'][0]:
+                            index_num = crafting_dictionary['history'].index(name)
+                            crafting_dictionary['history'][index_num] = f"{crafting_dictionary['history'][index_num]} <- Stored in backup"
+                            found = True
+
+                    else:
+                        pass
+
+            else:
+                pass
+
+        # No backup
+        except:
+            pass
+
+        # Splits the items into seperate lists
+        sep_list = [crafting_dictionary['history'][i:i+settings_dictionary['max_history']] for i in range (0, len(crafting_dictionary['history']), settings_dictionary['max_history'])]
+
+        # If number given goes above list size
+        if list_num > len(sep_list):
+            list_num = len(sep_list)
+
+        # If number given does not go above list size
+        else:
+            pass
+
+        sep_list[list_num - 1].insert(0, f"**List {list_num}/{len(sep_list)}**")
+
+        # Joins results
+        result_string = "\n".join(sep_list[list_num - 1])
+
+        # Tries to pull a color
+        try:
+            color = crafting_dictionary['color']
+
+        # Random color
+        except:
+            color = ""
+
+        return [f'({ctx.author.nickname}) {ch.name} checks their crafting history', result_string, history_img, color]
+
+    # If the crafting dictionary does not exist
+    else:
+        return [f'{ctx.author.nickname} has encountered an error', 'Crafting cvar not found', error_img, "#CC0202"]
+
+
+# Main program
+output_list = main(&ARGS&)
+l = "<"
+
+
+</drac2>
+-title "{{output_list[0]}}"
+-f "{{output_list[1]}}"
+-thumb "{{output_list[2]}}"
+-color "{{output_list[3]}}"
+-footer "!craft history  {{l}}#> | Updated 8/21/2023 | ShadowsStride"

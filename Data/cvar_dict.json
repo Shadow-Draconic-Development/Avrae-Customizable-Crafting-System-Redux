@@ -1,0 +1,55 @@
+{
+    "history": [
+        "Test Item",
+        "Test Uncommon Item"
+    ],
+    "name": "Test Item",
+    "category": "uncommon",
+    "type": "permanent",
+    "time": 1698361525,
+    "cooldown": 14400,
+    "crafting_cost": 250.0,
+    "color": "#1FC219",
+    "succ_mult": 1.0,
+    "first": false,
+    "stat": "",
+    "bypass": true,
+    "level": 0,
+    "dc": 15,
+    "nat1": -5,
+    "nat20": 5,
+    "total_succ": 17,
+    "max_fail": 4,
+    "backup": {
+        "cvar": {
+            "name": "Test Uncommon Item",
+            "category": "uncommon",
+            "type": "permanent",
+            "time": 1692682967,
+            "cooldown": 14400,
+            "crafting_cost": 250.0,
+            "stat": "Religion",
+            "succ_mult": 1.0,
+            "level": 0,
+            "dc": 15,
+            "nat1": -5,
+            "nat20": 5,
+            "total_succ": 17,
+            "max_fail": 4,
+            "color": ""
+        },
+        "success_cc": {
+            "value": 5,
+            "max": 15,
+            "desc": "Success Tracker for Test Uncommon Item",
+            "title": "Test Uncommon Item's Successes"
+        },
+        "failure_cc": {
+            "value": 0,
+            "max": 2,
+            "desc": "Failure Tracker for Test Uncommon Item",
+            "title": "Test Uncommon Item's Failures"
+        },
+        "money_back": 83.33
+    }
+}

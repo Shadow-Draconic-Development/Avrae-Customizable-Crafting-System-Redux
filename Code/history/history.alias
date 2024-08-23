@@ -1,0 +1,170 @@
+embed
+<drac2>
+# *******************************************************
+# * This work includes material written by Seth Hartman (aka ShadowsStride)
+# * and is licensed under the Creative Commons Attribution 4.0 International License 
+# * available at https://creativecommons.org/licenses/by/4.0/legalcode.
+# *******************************************************
+
+
+def set_default_settings(dictionary: dict, default_dictionary: dict) -> dict:
+    """
+    Loops through dictionary checking for missing entries and adding default ones where necessary
+
+    Args:
+        dictionary (dict): Dictionary to be checked
+        default_dictionary (dict): Default dictionary
+
+    Return:
+        dict: Corrected dictionary
+    """
+
+    # For each key in the default dictionary
+    for default_key in default_dictionary.keys():
+
+        # If the value is not a dictionary
+        if typeof(default_dictionary[default_key]) != "SafeDict":
+
+            if default_key in dictionary.keys():
+                pass
+
+            else:
+                dictionary[default_key] = default_dictionary[default_key]
+
+        # If the value is a dictionary
+        else:
+
+            # Check to see if it is a threshold dictionary
+            try:
+                for test_key in default_dictionary[default_key].keys():
+                    float(test_key)
+
+                if default_key in dictionary.keys():
+                    pass
+
+                else:
+                    dictionary[default_key] = default_dictionary[default_key]
+
+            # If it is not a threshold dictionary, run recursive call to check values of inner dictionary
+            except:
+                dictionary[default_key] = set_default_settings(dictionary[default_key], default_dictionary[default_key]) 
+
+    return dictionary
+
+
+def search_list(query: str, item_list: list[str]) -> list[str]|None:
+    """
+    Searches for item in list.
+
+    Args:
+        query (str): The query being made
+        item_list (list): List of items
+
+    Return:
+        list[str]|None: If it finds at least one match, it returns the item(s) in a list, otherwise it returns None
+    """
+
+    # Finds at least 1 match
+    if len(item_results := [item for item in item_list if query.lower() in item.lower()]) > 0:
+        return item_results
+
+    # If it finds no matches
+    else:
+        return None
+
+
+def parse_string_list(cvar_dict: dict, svar_dict: dict, page_num: int, ch: AliasCharacter) -> str:
+
+    result_list = []
+
+    for i in range(0, len(cvar_dict["history"]), svar_dict["max_history"]):
+        result_list.append("".join(cvar_dict["history"][i:i+svar_dict["max_history"]]))
+
+    match page_num:
+
+        case c if c > len(result_list):
+            page_num = len(result_list)
+
+        case c if c < 1:
+            page_num = 1
+
+        case _:
+            pass
+
+    result_list[page_num-1].insert(0, "**Current Crafting History:**")
+
+    try:
+        return f"{name} Checks Their Crafting History", "\n".join(result_list[page_num-1]), "https://raw.githubusercontent.com/SethHartman13/Avrae-Aliases-Snippets/master/Aliases/craft/images/history.png", cvar_dict["color"]
+
+    except:
+       return f"{name} Checks Their Crafting History", "\n".join(result_list[page_num-1]), "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/images/history.png", ""
+
+
+def main(input_list: list[str], ch = character(), settings_dictionary = grab_settings_dictionary()) -> list[str]:
+    """
+    Main program function
+
+    Args:
+        input_list (list[str]): List of inputs
+        ch = character(): Character object
+        settings_dictionary = grab_settings_dictionary(): Settings dictionary
+
+    Return:
+        (list[str]): Result
+    """
+
+    ch = character()
+
+    if (cvar_test := ch.get_cvar("crafting_dict")):
+        cvar_dict = load_json(cvar_test)
+
+    else:
+        return "You Have Been Sneak Attacked by an Error", "Crafting CVAR does not exist", "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/images/error.png", "#CF142B"
+
+    cvar_dict["history"][0] += " <- Current/most recent"
+
+    try:
+        input_list[0] = int(input_list[0])
+
+    except:
+        input_list[0] = 1
+
+    if "backup" in cvar_dict.keys():
+        if typeof(cvar_dict["backup"]) == "SafeDict":
+            
+            if cvar_dict["backup"]["success_cc"]["value"] == cvar_dict["backup"]["success_cc"]["max"] or cvar_dict["backup"]["failure_cc"]["value"] == cvar_dict["backup"]["failure_cc"]["max"]:
+                pass
+
+            elif (search_list := search_list(cvar_dict["backup"]["cvar"]["name"], cvar_dict["history"])):
+                cvar_dict["history"][cvar_dict["history"].index(search_list[0])] += " <- Currently in backup"
+
+            else:
+                pass
+
+        else:
+            if cvar_dict["backup"]["success_cc"][0] == cvar_dict["backup"]["success_cc"][1] or cvar_dict["backup"]["failure_cc"][0] == cvar_dict["backup"]["failure_cc"][1]:
+                pass
+
+            elif (search_list := search_list(cvar_dict["backup"]["cvar"][0], cvar_dict["history"])):
+                cvar_dict["history"][cvar_dict["history"].index(search_list[0])] += "<- Currently in backup"
+
+            else:
+                pass
+        
+    else:
+        pass
+
+    return parse_string_list(cvar_dict, svar_dict, input_list[0], ch)
+
+
+# Main program
+title, f, thumb, color = main(&ARGS&)
+l = "<"
+
+
+</drac2>
+-title "{{title}}"
+-f "{{f}}"
+-thumb "{{thumb}}"
+-color "{{color}}"
+-footer "{{ctx.prefix}}craft history {{l}}#> | 12/23/23 | ShadowsStride"

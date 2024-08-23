@@ -1,0 +1,92 @@
+embed
+<drac2>
+
+def grab_backup(cvar_dict: dict) -> str:
+
+    if typeof(cvar_dict["backup"]["success_cc"]) == "SafeList":
+
+        if cvar_dict["backup"]["success_cc"][0] != cvar_dict["backup"]["success_cc"][1] and cvar_dict["backup"]["failure_cc"][0] != cvar_dict["backup"]["failure_cc"][1]:
+            return f"`Item in backup: {cvar_dict["backup"]["cvar"][0]}`"
+
+        else:
+            return ""
+
+    else:
+        if cvar_dict["backup"]["success_cc"]["value"] != cvar_dict["backup"]["success_cc"]["max"] and cvar_dict["backup"]["failure_cc"]["value"] != cvar_dict["backup"]["failure_cc"]["max"]:
+            return f"`Item in backup: {cvar_dict["backup"]["cvar"]["name"]}`"
+
+        else:
+            return ""
+
+
+def main() -> tuple(str, str, str, str):
+
+
+    ch = character()
+
+    if ch.cc_exists('Crafting: Successes') and ch.cc_exists('Crafting: Failures'):
+
+        if (cvar_test := ch.get_cvar("crafting_dict")):
+            cvar_dict = load_json(cvar_test)
+
+            success_cc = ch.cc("Crafting: Successes")
+            failure_cc = ch.cc("Crafting: Failures")
+
+            result_string = []
+
+            if ((success_str1 := f"{success_cc.value}/{success_cc.max}") == (success_str2 := ch.cc_str("Crafting: Successes"))):
+                result_string.append(f"Successes: {success_str1}")
+
+            else:
+                result_string.append(f"Successes: {success_str1}")
+                result_string.append(success_str2)
+
+            if ((failure_str1 := f"{failure_cc.value}/{failure_cc.max}") == (failure_str2 := ch.cc_str("Crafting: Failures"))):
+                result_string.append(f"Failures: {failure_str1}")
+
+            else:
+                result_string.append(f"Failures: {failure_str1}")
+                result_string.append(failure_str2)
+
+        else:
+            return "You Have Been Sneak Attacked by an Error", "Despite having counters, there is no crafting dictionary", "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/images/error.png", "#CF142B"
+
+    else:
+        return  f"{name} Checks Their Crafting Progress", "No crafting project in-progress", "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/images/main.png", ""
+
+    
+    if cvar_dict["bypass"]:
+        result_string.append("\n`BYPASS USED`")
+
+    else:
+        result_string.append("")
+
+    if failure_cc.value == failure_cc.max:
+        result_string.insert(-2, f"\nMaximum failures reached for {cvar_dict["name"]}\nPlease run `!craft clear` as you have ruined your materials")
+
+        result_string.append(grab_backup(cvar_dict))
+
+        return f"{name} Checks Their Crafting Progress", "\n".join(result_string), "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/images/fail.png", "#CF142B"
+
+    elif success_cc.value == success_cc.max:
+        result_string.insert(-2, f"\nYou have finished crafting a {cvar_dict["name"]}\nPlease run `!craft clear` as you have ruined your materials")
+
+        result_string.append(grab_backup(cvar_dict))
+
+        return f"{name} Checks Their Crafting Progress", "\n".join(result_string), "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/images/hammer.png", cvar_dict["color"]
+
+    else:
+        result_string.append(grab_backup(cvar_dict))
+
+        return f"{name} Checks Their Crafting Progress", "\n".join(result_string), "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System/main/Data/images/main.png", cvar_dict["color"]
+
+
+title, f, thumb, color = main()
+
+
+</drac2>
+-title "{{title}}"
+-f "{{f}}"
+-thumb "{{thumb}}"
+-color "{{color}}"
+-footer "{{ctx.prefix}}craft log | 12/30/23 | ShadowsStride"

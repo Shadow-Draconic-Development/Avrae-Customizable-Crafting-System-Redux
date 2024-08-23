@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Generator</title>
+    <link rel="stylesheet" href="/Data/website/styles.css">
+    <link rel="icon" type="image/x-icon"
+    href="https://raw.githubusercontent.com/Shadow-Draconic-Development/.github/main/assets/icon.ico">
+</head>
+<body>
+    <div class="header-container">
+        <h1>Settings Generator</h1>
+        <img src="Data/images/main.png" alt="Logo" width="10%" style="min-width: 70px" />
+    </div>
+    <button id="toggleDarkMode" style="margin: 0 auto; display: block;">Toggle Dark Mode</button>
+    <nav>
+        <a href="https://shadow-draconic-development.github.io/.github/" target="_blank">Shadow Draconic Development
+            Main Page</a>
+            <a href="index.html">Item Crafting Settings Generator</a>
+        <a href="https://github.com/Shadow-Draconic-Development/Weather-Management-System---Redux"
+            target="_blank">GitHub</a>
+    </nav>
+    <div id="settingsContainer">
+        <form id="settingsForm">
+            <fieldset>
+                <legend>Settings</legend>
+                <label>
+                    LFG Integration:
+                    <select id="lfgIntegration">
+                        <option value="null" selected>Null</option>
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                </label>
+                <br>
+
+                <label>
+                    Pro Rate Refund:
+                    <select id="proRateRefund">
+                        <option value="null" selected>Null</option>
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                </label>
+                <br>
+
+                <label>
+                    Reliable Talent:
+                    <select id="reliableTalent">
+                        <option value="null" selected>Null</option>
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                </label>
+                <br>
+
+                <label>
+                    Success Mod Thresholds:
+                    <div id="thresholdContainer">
+                        <!-- Initial threshold pair -->
+                        <div class="thresholdPair">
+                            <input type="number" placeholder="Threshold" class="threshold" value="-999">
+                            <input type="number" placeholder="Value" class="value" value="1">
+                            <button type="button" class="removeThreshold">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="addThresholdButton">Add Threshold</button>
+                </label>
+                <br>
+
+                <label>
+                    Whitelisted Channel IDs:
+                    <div id="whitelistedChannelsContainer">
+                        <!-- Initial channel ID input -->
+                        <div class="channelPair">
+                            <input type="text" placeholder="Channel ID" class="whitelistedChannel">
+                            <button type="button" class="removeChannel">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="addChannelButton">Add Channel ID</button>
+                </label>
+                <br>
+
+                <label>
+                    Parent Channel Inherit:
+                    <select id="parentChannelInherit">
+                        <option value="null" selected>Null</option>
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                </label>
+                <br>
+
+                <label>
+                    XP Categories:
+                    <select id="xpCategories">
+                        <option value="null" selected>Null</option>
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                </label>
+            </fieldset>
+        </form>
+        <button id="generateJsonButton">Generate JSON</button>
+        <pre id="output"></pre>
+    </div>
+
+    <script src="/Data/website/settingsScripts.js"></script>
+</body>
+</html>

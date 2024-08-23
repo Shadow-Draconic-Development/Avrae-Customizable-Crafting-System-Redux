@@ -1,0 +1,436 @@
+embed
+<drac2>
+# *******************************************************
+# * This work includes material written by Seth Hartman (aka ShadowsStride)
+# * and is licensed under the Creative Commons Attribution 4.0 International License 
+# * available at https://creativecommons.org/licenses/by/4.0/legalcode.
+# *******************************************************
+
+
+def search_key(query: str, key_list: list[str]) -> list[str]|str:
+    """
+    Searches for dictionary key.
+
+    Args:
+        query (str): The query being made
+        key_list (list): List of keys
+
+    Return:
+        (str): If it finds it, it returns the key, otherwise it returns 'None'
+    """
+
+    # Creates list to store matches
+    key_results = []
+
+    # Checks each item if a match occurs
+    for key in key_list:
+
+        # If matches
+        if query.lower() in key.lower():
+            key_results.append(key)
+
+        else:
+            pass
+
+    # Finds at least 1 match
+    if len(key_results) > 0:
+        return key_results
+
+    # If it finds no matches
+    else:
+        return 'None'
+
+
+def grab_settings_dict() -> dict:
+    """
+    Grabs the settings dictionary, prioritizes svar, but falls back on gvar just in case.
+
+    Return:
+        (dict): Settings dictionary
+    """
+
+    # Tries to grab the svar
+    setting_test = get_svar("crafting_settings", default="None")
+
+    # If the svar exists
+    if setting_test != "None":
+
+        # Load dictionary
+        settings_dict = load_json(setting_test)
+
+        # Checks if lfg_integration exists, otherwise defaults to standard settings
+        try:
+            settings_dict['lfg_integration']
+        except:
+            settings_dict['lfg_integration'] = False
+
+        # Checks if pro_rate_refund exists, otherwise defaults to standard settings
+        try:
+            settings_dict['pro_rate_refund']
+        except:
+            settings_dict['pro_rate_refund'] = True
+
+        # Checks if success_dispType exists, otherwise defaults to standard settings
+        try:
+            settings_dict['success_dispType']
+        except:
+            settings_dict['success_dispType'] = "star"
+
+        # Checks if failure_dispType exists, otherwise defaults to standard settings
+        try:
+            settings_dict['failure_dispType']
+        except:
+            settings_dict['failure_dispType'] = "hex"
+
+        # Checks if jack_of_trades exists, otherwise defaults to standard settings
+        try:
+            settings_dict['jack_of_trades']
+        except:
+            settings_dict['jack_of_trades'] = True
+
+        # Checks if success_mod_threshold exists, otherwise defaults to standard settings
+        try:
+            settings_dict["success_mod_threshold"]
+        except:
+            settings_dict["success_mod_threshold"] = {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5}
+        
+        # Checks if whitelisted_channel_ids exists, otherwise defaults to standard settings
+        try:
+            settings_dict['whitelisted_channel_ids']
+        except:
+            settings_dict['whitelisted_channel_ids'] = []
+
+        # Checks if parent_channel_inherit exists, otherwise defaults to standard settings
+        try:
+            setting_dict['parent_channel_inherit']
+        except:
+            settings_dict['parent_channel_inherit'] = False
+
+        try:
+            settings_dict['xp_categories']
+        except:
+            settings_dict['xp_categories'] = False
+
+        return settings_dict
+
+    else:
+        return load_json(get_gvar("d2daf66a-dce2-481b-ab28-f37ffe072de7"))
+
+
+def calc_time(time:int) -> str:
+    """
+    Converts seconds into hours, minutes, seconds.
+    
+    Args:
+        time(int): Time in seconds
+
+    Return:
+        (str): Result
+    """
+
+    result_list = []
+
+    # Converts time into hours, minutes, seconds
+    hours = time // 3600
+    minutes = (time % 3600) // 60
+    seconds = (time % 3600) % 60
+
+    # Hours
+    if hours > 0:
+        if hours != 1:
+            result_list.append(f"{hours} hours")
+        
+        else:
+            result_list.append(f"{hours} hour")
+    
+    else:
+        pass
+
+    # Minutes
+    if minutes > 0:
+        if minutes != 1:
+            result_list.append(f"{minutes} minutes")
+        
+        else:
+            result_list.append(f"{minutes} minute")
+    
+    else:
+        pass
+
+    # Seconds
+    if seconds > 0:
+        if seconds != 1:
+            result_list.append(f"{seconds} seconds")
+        
+        else:
+            result_list.append(f"{seconds} second")
+    
+    else:
+        pass
+
+    return ", ".join(result_list)
+
+
+def find_category(category_name: str, _list: list) -> list[str]:
+    """
+    Searches for category
+    
+    Args:
+        category_name (str): Name of category
+        _list (str): List to search form
+
+    Return:
+        (list[str]): Result
+    """
+
+    # Searches the list
+    result_key = search_key(category_name, _list)
+
+    # If it at least finds one category
+    if result_key != "None":
+
+        # Finds exactly one category
+        if len(result_key) == 1:
+            return ['Success', result_key[0]]
+
+        # Finds multiple categories
+        else:
+            for dict_key in result_key:
+                if dict_key.lower() != category_name.lower():
+                    pass
+
+                # Finds an exact match
+                else:
+                    return ['Success', dict_key]
+
+
+            result_key.insert(0, "**Multiple Item Categories Found:**")
+
+            return ['Error', '\n'.join(result_key)]
+
+    # If it finds none
+    else:
+        return ['Success', 'None']
+
+
+def main(input_list: list, settings_dictionary: dict = grab_settings_dict()) -> list[str]:
+    """
+    Main program function
+
+    Args:
+        input_list (list): List of inputs
+        settings_dictioanry (dict): Settings dictionary (default: grab_settings_dict())
+
+    Return:
+        (list[str]): Result
+    """
+
+    # Image urls
+    error_img = "https://raw.githubusercontent.com/SethHartman13/Avrae-Aliases-Snippets/master/Aliases/craft/images/error.png"
+    list_img = "https://raw.githubusercontent.com/SethHartman13/Avrae-Aliases-Snippets/master/Aliases/craft/images/list.png"
+
+    # If there are no inputs, list all the categories and types (and settings)
+    if len(input_list) == 0:
+
+        # Setup and header
+        result_list = []
+        settings_list = []
+        result_list.append("**Bold** = Item Category (except for settings)")
+        result_list.append("Normal = Item Type (except for settings)")
+        result_list.append("")
+
+        # For each key, if the value for the key is not a dictionary and not success_mod_threshold
+        for key in settings_dictionary.keys():
+
+            # If it is not a setting
+            if typeof(settings_dictionary[key]) == "SafeDict" and (key != "success_mod_threshold" and key != "xp_categories"):
+                result_list.append(f'**{key}:**')
+
+                # Uses a float to check to see that it is able to 
+                for key2 in settings_dictionary[key].keys():
+
+                    # If it is cost based category
+                    try:
+                        if float(key2) == floor(key2):
+                            result_list.append(f"{int(key2)}gp")
+
+                        else:
+                            result_list.append(f"{float(key2)}gp")
+                        cost_based = True
+
+                    # If it is not a costbased category
+                    except:
+                        result_list.append(key2)
+                        cost_based = False
+                    
+                if cost_based:
+                    result_list.append("(Thresholds)")
+
+                else:
+                    pass
+
+                result_list.append("")
+
+            # If it is a setting
+            else:
+                settings_list.append(key)
+
+        # Header for settings
+        result_list.append("")
+        result_list.append("**Settings:**")
+
+        # Adds settings to result_list
+        for setting in settings_list:
+            result_list.append(setting)
+
+        return [f'{ctx.author.display_name} views crafting options and settings', '\n'.join(result_list), list_img, ""]
+    
+    # If we are looking for a specific category/setting
+    else:
+
+        # Holders
+        full_settings = [[],[]]
+        result_list = []
+
+        # Figures out what keys are settings and item categories
+        for key in settings_dictionary.keys():
+
+            # Item category
+            if typeof(settings_dictionary[key]) == "SafeDict" and (key != "success_mod_threshold" and key != "xp_categories"):
+                full_settings[0].append(key)
+
+            # Settings
+            else:
+                full_settings[1].append(key)
+
+        # Check the item categories
+        results = find_category(input_list[0], full_settings[0])
+
+        # Multiple categories found
+        if results[0] == "Error":
+            return [f'{ctx.author.display_name} has encountered an error', results[1], error_img, "#CC0202"]
+
+        # If it was not a item category
+        elif results[1] == "None":
+            results = find_category(input_list[0], full_settings[1])
+
+        # If one item category was found
+        else:
+            input_list[0] = results[1]
+
+        # Multiple settings found
+        if results[0] == "Error":
+            return [f'{ctx.author.display_name} has encountered an error', results[1], error_img, "#CC0202"]
+
+        # If it was not an item category or a setting
+        elif results[1] == "None":
+            return [f'{ctx.author.display_name} has encountered an error', "Item category/setting not found", error_img, "#CC0202"]
+
+        # Found one setting
+        else:
+            input_list[0] = results[1]
+
+        # If this is an item category
+        if input_list[0] in full_settings[0]:
+            
+            # Header
+            result_list.append(f"**{input_list[0]}:**")
+            result_list.append("")
+
+            for item_type in settings_dictionary[input_list[0]].keys():
+
+                # If it is a money based item category
+                try:
+                    result_list.append(f"**{float(item_type)}gp**")
+                
+                # If it is not
+                except:
+                    result_list.append(f"**{item_type}**")
+
+                # Lists all the settings
+                result_list.append(f"Level Requirement: {settings_dictionary[input_list[0]][item_type][0]}")
+                result_list.append(f"DC: {settings_dictionary[input_list[0]][item_type][1]}")
+                result_list.append(f"Nat1 Penalty: {settings_dictionary[input_list[0]][item_type][2]}")
+                result_list.append(f"Nat20 Bonus: {settings_dictionary[input_list[0]][item_type][3]}")
+                result_list.append(f"Successes Needed: {settings_dictionary[input_list[0]][item_type][4]}")
+                result_list.append(f"Maximum Failures Alotted: {settings_dictionary[input_list[0]][item_type][5]}")
+                result_list.append(f"Cooldown: {calc_time(settings_dictionary[input_list[0]][item_type][6])}")
+
+                # Tries to pull details as a non-money based category
+                try:
+                    color = settings_dictionary[input_list[0]][item_type][8]
+                    result_list.append(f"Retail Item Cost: {settings_dictionary[input_list[0]][item_type][7]}gp")
+                    result_list.append(f"Hex Color: {settings_dictionary[input_list[0]][item_type][8]}")
+
+                # If it is a money based category
+                except:
+                    result_list.append(f"Hex Color: {settings_dictionary[input_list[0]][item_type][7]}")
+                    color = settings_dictionary[input_list[0]][item_type][7]
+                result_list.append("")
+
+            return [f'{ctx.author.display_name} views crafting settings for the {input_list[0]} category', '\n'.join(result_list), list_img, color]
+
+        # If this is a setting
+        else:
+
+            # Header
+            result_list.append(f'**{input_list[0]}:**')
+
+            # If it is a string value
+            if typeof(settings_dictionary[input_list[0]]) == 'str':
+                result_list.append(settings_dictionary[input_list[0]])
+
+            # If it is a boolean value
+            elif typeof(settings_dictionary[input_list[0]]) == 'bool':
+                if settings_dictionary[input_list[0]]:
+                    result_list.append("On")
+
+                else:
+                    result_list.append("Off")
+
+            # If it is a dictionary value
+            elif typeof(settings_dictionary[input_list[0]]) == 'SafeDict':
+                for key in settings_dictionary[input_list[0]].keys():
+
+                    # If it is a string value
+                    if typeof(key) == "str":
+                        result_list.append(f"**{key}:** {settings_dictionary[input_list[0]][key]}")
+
+                    # If it is a list value
+                    elif typeof(key) != "SafeDict":
+                        result_list.append(f"**{key}:**")
+                        for item in settings_dictionary[input_list[0]][key]:
+                            result_list.append(item)
+
+                        result_list.append("")
+
+                    # If it is a dict value
+                    else:
+                        result_list.append("Shadow has not setup this yet as there is not a usecase for dict value, message him to address this")
+
+            # If it is a list value:
+            else:
+                for item in settings_dictionary[input_list[0]]:
+                    result_list.append(item)
+
+            return [f'{ctx.author.display_name} views settings for {input_list[0]}', '\n'.join(result_list), list_img, ""]    
+
+
+# Main program
+output_list = main(&ARGS&)
+l = "<"
+
+# If for some reason it did not spit out a color, spits out red
+try:
+    output_list[3]
+
+except:
+    output_list.append("#CC0202")
+
+
+</drac2>a
+-title "{{output_list[0]}}"
+-f "{{output_list[1]}}"
+-thumb "{{output_list[2]}}"
+-color "{{output_list[3]}}"
+-footer "!craft list {{l}}item_category/setting> | Updated 8/4/2023 | ShadowsStride"
