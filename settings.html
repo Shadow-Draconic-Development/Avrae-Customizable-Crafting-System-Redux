@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>General Settings Generator</title>
     <link rel="stylesheet" href="/Data/website/styles.css">
-    <link rel="icon" type="image/x-icon"
-    href="https://raw.githubusercontent.com/Shadow-Draconic-Development/.github/main/assets/icon.ico">
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/Shadow-Draconic-Development/.github/main/assets/icon.ico">
 </head>
 <body>
     <div class="header-container">
@@ -15,16 +14,16 @@
     </div>
     <button id="toggleDarkMode" style="margin: 0 auto; display: block;">Toggle Dark Mode</button>
     <nav>
-        <a href="https://shadow-draconic-development.github.io/.github/" target="_blank">Shadow Draconic Development
-            Main Page</a>
-            <a href="index.html">General Settings Generator</a>
-        <a href="https://github.com/Shadow-Draconic-Development/Weather-Management-System---Redux"
-            target="_blank">GitHub</a>
+        <a href="https://shadow-draconic-development.github.io/.github/" target="_blank">Shadow Draconic Development Main Page</a>
+        <a href="index.html">General Settings Generator</a>
+        <a href="https://github.com/Shadow-Draconic-Development/Weather-Management-System---Redux" target="_blank">GitHub</a>
     </nav>
     <div id="settingsContainer">
         <form id="settingsForm">
             <fieldset>
                 <legend>Settings</legend>
+                
+                <!-- LFG Integration -->
                 <label>
                     LFG Integration:
                     <select id="lfgIntegration">
@@ -35,6 +34,7 @@
                 </label>
                 <br>
 
+                <!-- Pro Rate Refund -->
                 <label>
                     Pro Rate Refund:
                     <select id="proRateRefund">
@@ -45,6 +45,7 @@
                 </label>
                 <br>
 
+                <!-- Reliable Talent -->
                 <label>
                     Reliable Talent:
                     <select id="reliableTalent">
@@ -55,10 +56,10 @@
                 </label>
                 <br>
 
+                <!-- Success Mod Thresholds -->
                 <label>
                     Success Mod Thresholds:
                     <div id="thresholdContainer">
-                        <!-- Initial threshold pair -->
                         <div class="thresholdPair">
                             <input type="number" placeholder="Threshold" class="threshold" value="-999">
                             <input type="number" placeholder="Value" class="value" value="1">
@@ -69,10 +70,10 @@
                 </label>
                 <br>
 
+                <!-- Whitelisted Channel IDs -->
                 <label>
                     Whitelisted Channel IDs:
                     <div id="whitelistedChannelsContainer">
-                        <!-- Initial channel ID input -->
                         <div class="channelPair">
                             <input type="text" placeholder="Channel ID" class="whitelistedChannel">
                             <button type="button" class="removeChannel">Remove</button>
@@ -82,6 +83,7 @@
                 </label>
                 <br>
 
+                <!-- Parent Channel Inherit -->
                 <label>
                     Parent Channel Inherit:
                     <select id="parentChannelInherit">
@@ -92,13 +94,16 @@
                 </label>
                 <br>
 
+                <!-- XP Categories -->
                 <label>
                     XP Categories:
-                    <select id="xpCategories">
-                        <option value="null" selected>Null</option>
-                        <option value="true">True</option>
-                        <option value="false">False</option>
-                    </select>
+                    <div id="xpCategoriesContainer">
+                        <div class="categoryPair">
+                            <input type="text" placeholder="XP Category" class="xpCategory">
+                            <button type="button" class="removeCategory">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="addCategoryButton">Add XP Category</button>
                 </label>
             </fieldset>
         </form>

@@ -4,7 +4,7 @@ document.getElementById('toggleDarkMode').addEventListener('click', function() {
     // Toggle dark mode manually
     if (body.classList.contains('dark-mode')) {
         body.classList.remove('dark-mode');
-        body.classList.add('light-mode')
+        body.classList.add('light-mode');
         localStorage.setItem('theme', 'light');
     } else {
         body.classList.add('dark-mode');
@@ -25,7 +25,6 @@ window.addEventListener('load', function() {
         document.body.classList.toggle('dark-mode', prefersDark);
     }
 });
-
 
 document.getElementById('addCategoryButton').addEventListener('click', function() {
     const categoriesContainer = document.getElementById('categoriesContainer');
@@ -143,7 +142,7 @@ document.getElementById('generateJsonButton').addEventListener('click', function
             let itemNameOrCostThreshold = null;
 
             inputs.forEach((input, index) => {
-                if (input && input.value === '' && !(input.classList.contains('itemcost') && categoryType === 'cost-based')) {
+                if (input && input.value === '' && !(input.classList.contains('itemcost') && categoryType === 'cost-based') && !(input.classList.contains('hexcode'))) {
                     alert('All fields must be filled out!');
                     input.focus();
                     valid = false;
@@ -155,7 +154,7 @@ document.getElementById('generateJsonButton').addEventListener('click', function
                 } else if (input) {
                     // Ensure the hex code remains a string, and all other values are numbers
                     if (input.classList.contains('hexcode')) {
-                        values.push(input.value); // Store hex code as string
+                        values.push(input.value || ""); // Store hex code as string, use empty string if not provided
                     } else if (!(input.classList.contains('itemcost') && categoryType === 'cost-based')) {
                         values.push(Number(input.value)); // Store as a number
                     }

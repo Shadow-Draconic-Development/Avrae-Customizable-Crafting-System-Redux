@@ -54,16 +54,34 @@ function addChannelInput() {
     channelsContainer.appendChild(newPair);
 }
 
-// Add initial threshold and channel ID pair on page load
+// Function to add a new XP category input
+function addCategoryInput() {
+    const categoriesContainer = document.getElementById('xpCategoriesContainer');
+    const newPair = document.createElement('div');
+    newPair.classList.add('categoryPair');
+
+    newPair.innerHTML = `
+        <input type="text" placeholder="XP Category" class="xpCategory">
+        <button type="button" class="removeCategory">Remove</button>
+    `;
+
+    categoriesContainer.appendChild(newPair);
+}
+
+// Add initial threshold, channel ID pair, and XP category pair on page load
 document.getElementById('addThresholdButton').addEventListener('click', addThresholdPair);
 document.getElementById('addChannelButton').addEventListener('click', addChannelInput);
+document.getElementById('addCategoryButton').addEventListener('click', addCategoryInput);
 
-// Function to remove a threshold pair or channel ID
+// Function to remove a threshold pair, channel ID, or category
 document.addEventListener('click', function(event) {
     if (event.target && event.target.classList.contains('removeThreshold')) {
         event.target.parentElement.remove();
     }
     if (event.target && event.target.classList.contains('removeChannel')) {
+        event.target.parentElement.remove();
+    }
+    if (event.target && event.target.classList.contains('removeCategory')) {
         event.target.parentElement.remove();
     }
 });
@@ -83,7 +101,6 @@ document.getElementById('generateJsonButton').addEventListener('click', function
     addBooleanSetting("pro_rate_refund", "proRateRefund");
     addBooleanSetting("reliable_talent", "reliableTalent");
     addBooleanSetting("parent_channel_inherit", "parentChannelInherit");
-    addBooleanSetting("xp_categories", "xpCategories");
 
     // Add success_mod_threshold
     const successModThresholds = {};
@@ -108,6 +125,18 @@ document.getElementById('generateJsonButton').addEventListener('click', function
     });
     if (whitelistedChannels.length > 0) {
         settings.whitelisted_channel_ids = whitelistedChannels;
+    }
+
+    // Add xp_categories
+    const xpCategories = [];
+    document.querySelectorAll('.xpCategory').forEach(input => {
+        const value = input.value.trim();
+        if (value) {
+            xpCategories.push(value);
+        }
+    });
+    if (xpCategories.length > 0) {
+        settings.xp_categories = xpCategories;
     }
 
     const jsonString = JSON.stringify(settings, null, 4);
