@@ -1,0 +1,102 @@
+multiline
+<drac2>
+
+
+def main(input_dict: dict, prefix: str, footer: str) -> tuple(str, str):
+
+
+    if (svar_dict := get_svar("craft_settings")):
+        svar_dict = load_json(svar_dict)
+
+    else:
+        svar_dict = {
+            "Settings": {},
+            "Categories": {}
+        }
+
+    for setting, setting_value in input_dict.items():
+
+        match setting:
+
+            case "lfg_integration":
+
+                if setting_value:
+                    svar_dict["Settings"]["lfg_integration"] = True
+
+                else:
+                    if "lfg_integration" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("lfg_integration")
+
+            case "pro_rate_refund":
+                if not setting_value:
+                    svar_dict["Settings"]["lfg_integration"] = False
+
+                else:
+                    if "pro_rate_refund" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("pro_rate_refund")
+
+            case "reliable_talent":
+                if setting_value:
+                    svar_dict["Settings"]["reliable_talent"] = True
+
+                else:
+                    if "reliable_talent" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("reliable_talent")
+
+            case "success_mod_threshold":
+
+                if setting_value != {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5}:
+                    svar_dict["Settings"]["success_mod_threshold"] = setting_value:
+                
+                else:
+                    if "success_mod_threshold" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("success_mod_threshold")
+
+            case "whitelisted_channel_ids":
+
+                if len(setting_value) != 0:
+                    svar_dict["Settings"]["whitelisted_channel_ids"] = setting_value
+
+                else:
+                    if "whitelisted_channel_ids" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("whitelisted_channel_ids")
+
+            case "parent_channel_inherit":
+
+                if setting_value:
+                    svar_dict["Settings"]["parent_channel_inherit"] = True
+
+                else:
+                    if "parent_channel_inherit" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("parent_channel_inherit")
+
+            case "xp_categories":
+
+                if len(setting_value) != 0:
+                    svar_dict["Settings"]["xp_categories"] = setting_value
+
+                else:
+                    if "xp_categories" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("xp_categories") 
+
+            case _:
+                pass
+
+    return f"{prefix}embed -title 'Successfully imported general settings' -footer '{footer}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png'", f"{prefix}svar craft_settings {dump_json(svar_dict)}"
+
+
+input_list = &ARGS&
+prefix = ctx.prefix
+footer = f"{prefix}craft import settings [JSON string] | 8/23/24 | ShadowsStride"
+
+if len(input_list) > 0
+    embed_str, svar_str = main(load_json(input_list[0]), prefix, footer)
+
+else:
+    embed_str = f"{prefix}embed -title 'You Have Been Sneak Attacked by an Error' -f 'Expected JSON string' -color '#CF142B' -footer '{footer}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png'"
+    svar_str = ""
+
+
+</drac2>
+{{embed_str}}
+{{svar_str}}

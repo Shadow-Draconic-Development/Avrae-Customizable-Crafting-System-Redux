@@ -1,0 +1,79 @@
+multiline
+<drac2>
+
+
+def validate_color(hex_code: str) -> bool|str:
+    """
+    Validates hex strings
+
+    Args:
+        hex_code (str): Hex code
+
+    Return:
+        bool|str: Hex code if valid, False if invalid
+    """
+
+    # Remove leading and trailing whitespace
+    hex_code = hex_code.strip()
+    
+    # Ensure the hex code starts with #
+    if not hex_code.startswith("#"):
+        hex_code = "#" + hex_code
+
+    # Validate hex code length and content
+    if not (len(hex_code) == 4 or len(hex_code) == 7) or not all(c in "0123456789ABCDEFabcdef" for c in hex_code[1:]):
+        return False
+
+    # Convert 3-digit hex code to 6-digit hex code
+    if len(hex_code) == 4:
+        hex_code = "#" + "".join([c * 2 for c in hex_code[1:]])
+
+    return hex_code
+
+
+def main(input_dict: dict, prefix: str, footer: str) -> tuple(str, str):
+    
+
+    if (svar_dict := get_svar("craft_settings")):
+        svar_dict = load_json(svar_dict)
+
+    else:
+        svar_dict = {
+            "Settings": {},
+            "Categories": {}
+        }
+
+    for item_category, category_dict in input_dict.items():
+
+        if not item_category in svar_dict["Categories"].keys():
+            svar_dict["Categories"][item_category] = dict()
+
+
+        for item_type, item_list in category_dict.items():
+
+            if (hex_code := validate_color(item_list[-1])):
+                item_list[-1] = hex_code
+
+            else:
+                item_list[-1] = ""
+
+            svar_dict["Categories"][item_category][item_type] = input_list[item_category][item_type]
+
+    return f"{prefix}embed -title 'Successfully imported item settings' -footer '{footer}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png'", f"{prefix}svar craft_settings {dump_json(svar_dict)}"
+
+
+input_list = &ARGS&
+prefix = ctx.prefix
+footer = f"{prefix}craft import item [JSON string] | 8/23/24 | ShadowsStride"
+
+if len(input_list) > 0
+    embed_str, svar_str = main(load_json(input_list[0]), prefix, footer)
+
+else:
+    embed_str = f"{prefix}embed -title 'You Have Been Sneak Attacked by an Error' -f 'Expected JSON string' -color '#CF142B' -footer '{footer}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png'"
+    svar_str = ""
+
+
+</drac2>
+{{embed_str}}
+{{svar_str}}
