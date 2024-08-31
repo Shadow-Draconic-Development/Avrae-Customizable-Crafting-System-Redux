@@ -7,10 +7,10 @@
         "Test Item", // Item name
         "uncommon", // Item category
         "permanent", // Item type
-        1698361525, // Time of last crafting
         250.0, // Cost of crafting
         "Stealth", // Skill used 
-        false // Bypass
+        false, // Bypass/edit
+        1.0 // Success mulitplier
     ],
     "backup": {
         "Test Item 2": [
@@ -23,5 +23,8 @@
             0, // Failures
             83.33 // Money back
         ]
-    }
+    },
+    "log": {},
+    "last_item_cooldown": 3600, // Cooldown,
+    "last_craft_time": 1698361525 // Last time of crafting
 }
