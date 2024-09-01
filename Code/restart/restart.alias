@@ -1,0 +1,254 @@
+embed
+<drac2>
+
+
+def search_list(query: str, item_list: list[str]) -> list[str]|None:
+    """
+    Searches for item in list.
+
+    Args:
+        query (str): The query being made
+        item_list (list): List of items
+
+    Return:
+        list[str]|None: If it finds at least one match, it returns the item(s) in a list, otherwise it returns None
+    """
+
+    # Finds at least 1 match
+    if len(item_results := [item for item in item_list if query.lower() in item.lower()]) > 0:
+        return item_results
+
+    # If it finds no matches
+    else:
+        return None
+
+
+def multiple_match_determine(search_result: list[str], input_value: str) -> str|bool:
+    """
+    Detemines if there is an exact match in search results
+    
+    Args:
+        search_result (list[str]): List of search results
+        input_value (str): Input value to match
+
+    Returns:
+        str|bool: The exact match if found, otherwise False
+    """
+
+    for match in search_result:
+        if match.lower() == input_value.lower():
+            return match
+
+    return False
+
+
+def manage_funds(cost: float, ch: character) -> dict:
+    """
+    Function that handles the withdrawing/adding of funds. Positive will subtract, negatve will add
+    
+    Args:
+        cost (float): Cost in gp to be withdrawn.
+        ch (character): Character object 
+
+    Returns:
+        dict: Money dictionary
+    """
+    
+    gold = int(cost)
+
+    decimal = int(round((cost - gold) * 100))
+
+    silver = decimal // 10
+    copper = decimal % 10
+
+    delta = ch.coinpurse.modify_coins(
+        gp=-1*gold,
+        sp=-1*silver,
+        cp=-1*copper)
+
+    return ch.coinpurse.modify_coins(gp=-1*gold, sp=-1*silver, cp=-1*copper) 
+
+
+def grab_settings_dictionary() -> dict:
+    """
+    Grabs and sets up settings dictionary
+
+    Return:
+        dict: Settings dictionary
+    """
+
+    full_svar_dict = {
+        "Settings": {
+            "lfg_integration": False,
+            "pro_rate_refund": True,
+            "reliable_talent": False,
+            "success_mod_threshold": {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5},
+            "whitelisted_channel_ids": [],
+            "parent_channel_inherit": False,
+            "xp_categories": []    
+        },
+        "Categories": {}
+    }
+
+    if (svar_dict := get_svar("craft_settings")):
+        svar_dict = load_json(svar_dict)
+
+
+        for setting, setting_value in full_svar_dict["Settings"].items():
+
+            if not setting in svar_dict["Settings"].keys():
+                svar_dict["Settings"][setting] = setting_value
+
+        if not "-999" in svar_dict["Settings"]["success_mod_threshold"].keys():
+            svar_dict["Settings"]["success_mod_threshold"]["-999"] = 1
+
+    else:
+        svar_dict = full_svar_dict
+
+    return svar_dict
+
+
+def main(input_list: list[str], prefix: str) -> tuple(str, str, str, str):
+
+    svar_dict = grab_settings_dictionary()
+    current_time = int(time())
+
+    error_img = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png"
+    main_img = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/main.png"
+    color = "#CF142B" 
+
+
+    if not (ch := character()):
+        return "You Have Been Sneak Attacked by an Error", "You must have an active character", error_img, color
+
+    if (cvar_dict := ch.get_cvar("craft_dict")):
+        cvar_dict = load_json(cvar_dict)
+
+    else:
+        return "You Have Been Sneak Attacked by an Error", "You do not have any items to restart", error_img, color
+
+    if len(cvar_dict["current_item"]) > 0:
+        return f"You must first run `{prefix}craft clear` as you already have an active craft going on", error_img, color
+
+    if len(input_list) == 0:
+        if len(cvar_dict["backup"].keys()):
+            input_list.append(cvar_dict["backup"].keys()[0])
+
+        else:
+            return "You Have Been Sneak Attacked by an Error", "Expected name of item", error_img, color
+
+    input_list[0] = " ".join(input_list)
+
+    if (search_result := search_list(input_list[0], cvar_dict["backup"].keys())):
+
+        if len(search_result) == 1:
+            input_list[0] = search_result[0]
+
+        else:
+            if (match := multiple_match_determine(search_result, input_list[0])):
+                input_list[0] = match
+
+            else:
+                return "You Have Been Sneak Attacked by an Error", "**Multiple Items Found:**\n" + "\n".join(search_result), error_img, color
+
+    else:
+        return "You Have Been Sneak Attacked by an Error", "Item not found", error_img, color
+
+    cvar_dict["current_item"] = cvar_dict["backup"].pop(input_list[0])
+
+    money_back = cvar_dict["current_item"].pop(-1)
+    num_failures = cvar_dict["current_item"].pop(-1)
+    num_successes = cvar_dict["current_item"].pop(-1)
+
+    cvar_dict["current_item"].insert(0, input_list[0])
+
+    if cvar_dict["current_item"][1] in svar_dict["Categories"].keys():
+
+        if cvar_dict["current_item"][2] in svar_dict["Categories"][cvar_dict["current_item"][1]].keys():
+
+            if money_back > 0:
+
+                coin_purse = ch.coinpurse
+
+                if coin_purse.total < money_back:
+                    return "You Have Been Sneak Attacked by an Error", "You do not have enough money to restart this item", error_img, color
+
+                manage_funds(money_back, ch)
+
+                if (int(money_back) := int_money_back) == money_back:
+
+                    f = f"You have successfully restarted {input_list[0]}. You have been deducted {int_money_back}gp"
+
+                else:
+                    f = f"You have successfully restarted {input_list[0]}. You have been deducted {money_back}gp"
+            
+            else:
+                f = f"You have successfully restarted {input_list[0]}."
+
+            cvar_dict["log"][str(current_time)] = f"{input_list[0]} was restarted"
+
+            ch.set_cvar("craft_dict", dump_json(cvar_dict))
+
+        else:
+            cvar_dict["current_item"] = []
+            ch.set_cvar("craft_dict", dump_json(cvar_dict))
+
+            cvar_dict["log"][str(current_time)] = f"{input_list[0]} was removed from backup"
+
+            return "You Have Been Sneak Attacked by an Error", "Settings do not exist, item has been deleted", error_img, color
+
+    else:
+        cvar_dict["current_item"] = []
+        ch.set_cvar("craft_dict", dump_json(cvar_dict))
+
+        cvar_dict["log"][str(current_time)] = f"{input_list[0]} was removed from backup"
+
+        return "You Have Been Sneak Attacked by an Error", "Settings do not exist, item has been deleted", error_img, color
+
+    num_successes = str(ceil(svar_dict["current_item"][6] * svar_dict["Categories"][item_category][item_type][5]))
+
+    ch.create_cc(
+        name="Craft: Successes",
+        minVal="0",
+        maxVal=num_successes,
+        reset="none",
+        dispType="star",
+        title=f"{input_list[0]}: Successes",
+        desc=f"Success tracker for {item_name}",
+        initial_value="0"
+    )
+
+    ch.create_cc(
+        name="Craft: Failures",
+        minVal="0",
+        maxVal=str(svar_dict["Categories"][item_category][item_type][5]),
+        reset="none",
+        dispType="hex",
+        title=f"{input_list[0]}: Failures",
+        desc=f"Failure tracker for {input_list[0]}",
+        initial_value="0"
+    )
+
+    try:
+        color = svar_dict["Categories"][item_category][item_type][8]
+
+    except:
+        color = svar_dict["Categories"][item_category][item_type][7]
+
+    ch.set_cvar("craft_dict", dump_json(cvar_dict))
+
+    return f"{name} Restarts Their Crafting For a {input_list[0]}", f, image, color
+
+
+prefix  = ctx.prefix
+title, f, thumb, color = main(&ARGS&, prefix)
+
+l = "<"
+
+
+</drac2>
+-title "{{title}}"
+-f "{{f}}"
+-thumb "{{thumb}}"
+-color "{{color}}"
+-footer "{{prefix}}craft restart {{l}}item name> | 8/31/24 | ShadowsStride"

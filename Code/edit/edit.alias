@@ -1,0 +1,122 @@
+embed
+<drac2>
+
+
+def search_list(query: str, item_list: list[str]) -> list[str]|None:
+    """
+    Searches for item in list.
+
+    Args:
+        query (str): The query being made
+        item_list (list): List of items
+
+    Return:
+        list[str]|None: If it finds at least one match, it returns the item(s) in a list, otherwise it returns None
+    """
+
+    # Finds at least 1 match
+    if len(item_results := [item for item in item_list if query.lower() in item.lower()]) > 0:
+        return item_results
+
+    # If it finds no matches
+    else:
+        return None
+
+
+def main(input_list: list[str]) -> tuple(str, str, str, str):
+
+    error_img = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png"
+    color = "#CF142B"
+
+    current_time = int(time())
+
+    if not (ch := character()):
+        return "You Have Been Sneak Attacked by an Error", "You must have an active character", error_img, color
+
+    if (cvar_dict := ch.get_cvar("craft_dict")):
+        cvar_dict = load_json(cvar_dict)
+
+    else:
+        return "You Have Been Sneak Attacked by an Error", "You must have no active crafting sessions", error_img, color
+
+    if len(input_list) < 2:
+        return "You Have Been Sneak Attacked by an Error", "Expected failure/success and # amount", error_img, color
+
+    try:
+        input_list[1] = int(input_list[1])
+
+    except:
+        return "You Have Been Sneak Attacked by an Error", "Expected a number amount", error_img, color
+
+    if not ch.cc_exists("Craft: Successes") and ch.cc_exists("Craft: Failures"):
+        return "You Have Been Sneak Attacked by an Error", "Crafting CCs do not exist", error_img, color
+
+    if (search_result := search_list(input_list[0], ["Failure", "Success"])):
+
+        if len(search_result) == 1:
+            input_list[0] = search_result[0]
+
+        else:
+            return "You Have Been Sneak Attacked by an Error", "Expected failure/success", error_img, color 
+
+    else:
+        return "You Have Been Sneak Attacked by an Error", "Expected failure/success", error_img, color
+
+    output_list = []
+
+    if input_list[0] == "Success":
+
+        success_cc = ch.cc("Craft: Successes")
+        success_cc.mod(input_list[1])
+
+        if input_list[1] > 0:
+            output_list.append(f"Successes: {success_cc.value}/{success_cc.max} (+{input_list[1]})")
+
+        elif input_list[1] < 0:
+            output_list.append(f"Successes: {success_cc.value}/{success_cc.max} ({input_list[1]})")
+
+        else:
+            output_list.append(f"Successes: {success_cc.value}/{success_cc.max}")
+
+        if f"{success_cc.value}/{success_cc.max}" != ch.cc_str("Craft: Successes"):
+            output_list.append(ch.cc_str("Craft: Successes"))
+
+        if input_list[1] != 0:
+            cvar_dict["log"][str(current_time)] = f"Success CC altered by {input_list[1]}"
+
+        title = f"{name} ({ctx.author.display_name}) Alters Their Crafting Successes"
+        
+
+    else:
+        failure_cc = ch.cc("Craft: Failures")
+        failure_cc.mod(input_list[1])
+
+        if failure_mod > 0:
+            output_list.append(f"Failures: {failure_cc.value}/{failure_cc.max} (+{failure_mod})")
+
+        elif success_mod < 0:
+            output_list.append(f"Failures: {failure_cc.value}/{failure_cc.max} ({failure_mod})")
+
+        else:
+            output_list.append(f"Failures: {failure_cc.value}/{failure_cc.max}")
+
+        if f"{failure_cc.value}/{failure_cc.max}" != ch.cc_str("Craft: Failures"):
+            output_list.append(ch.cc_str("Craft: Failures"))
+
+        if input_list[1] != 0:
+            cvar_dict["log"][str(current_time)] = f"Failure CC altered by {input_list[1]}"
+
+        title = f"{name} ({ctx.author.display_name}) Alters Their Crafting Failures"
+
+    return title, "\n".join(output_list), image, ""
+
+
+title, f, thumb, color = main(&ARGS&)
+
+
+</drac2>
+-title "{{title}}"
+-f "{{f}}"
+-thumb "{{thumb}}"
+-color "{{color}}"
+-footer "{{ctx.prefix}}craft edit [failure/success] [#] | 8/31/24 | ShadowsStride"

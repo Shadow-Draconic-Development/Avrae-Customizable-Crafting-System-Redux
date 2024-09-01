@@ -138,7 +138,7 @@ def manage_funds(cost: float, ch: character) -> dict:
         ch (character): Character object 
 
     Returns:
-        bool: If withdrawl was successful
+        dict: Money dictionary
     """
     
     gold = int(cost)
@@ -349,6 +349,7 @@ def run_crafting_session(svar_dict: dict, cvar_dict: dict, ch: AliasCharacter, c
         for level_tuple in ch.levels:
             if "rogue" in level_tuple[0].lower() and level_tuple[1] >= 11:
                 reliable = True
+                break
 
     if "halfling" in ch.race.lower():
         halfling = True
@@ -356,75 +357,28 @@ def run_crafting_session(svar_dict: dict, cvar_dict: dict, ch: AliasCharacter, c
     else:
         halfling = False
 
-    match (halfling, adv, reliable):
+    # Build dictionary for dict_lookup
+    roll_dict = {
+        (True, -1, True): "2d20ro1kl1mi10",
+        (True, -1, False): "2d20ro1kl1",
+        (True, 0, True): "1d20ro1mi10",
+        (True, 0, False): "1d20ro1",
+        (True, 1, True): "2d20ro1kh1mi10",
+        (True, 1, False): "2d20ro1kh1",
+        (True, 2, True): "3d20ro1kh1mi10",
+        (True, 2, False): "3d20ro1kh1",
+        (False, -1, True): "2d20kl1mi10",
+        (False, -1, False): "2d20kl1",
+        (False, 0, True): "1d20mi10",
+        (False, 0, False): "1d20",
+        (False, 1, True): "2d20kh1mi10",
+        (False, 1, False): "2d20kh1",
+        (False, 2, True): "3d20kh1mi10",
+        (False, 2, False): "3d20kh1"
+    }
 
-        # Halfling, Disadvantage, Reliable
-        case (True, -1, True):
-            roll_str = "2d20ro1kl1mi10"
-
-        # Halfing, Disadvantage
-        case (True, -1, False):
-            roll_str = "2d20ro1kl1"
-
-        # Halfling, No Advantage, Reliable
-        case (True, 0, True):
-            roll_str = "1d20ro1mi10"
-
-        # Halfling, No Advantage
-        case (True, 0, False):
-            roll_str = "1d20ro1"
-
-        # Halfling, Advantage, Reliable
-        case (True, 1, True):
-            roll_str = "2d20ro1kh1mi10"
-
-        # Halfling, Advantage
-        case (True, 1, False):
-            roll_str = "2d20ro1kh1"
-
-        # Halfling, Double Advantage, Reliable
-        case (True, 2, True):
-            roll_str = "3d20ro1kh1mi10"
-
-        # Halfling, Double Advantage
-        case (True, 2, False):
-            roll_str = "3d20ro1kh1"
-
-        # Not Halfling, Disadvantage, Reliable
-        case (False, -1, True):
-            roll_str = "2d20kl1mi10"
-
-        # Not Halfling, Disadvantage
-        case (False, -1, False):
-            roll_str = "2d20kl1"
-
-        # Not Halfling, No Advantage, Reliable
-        case (False, 0, True):
-            roll_str = "1d20mi10"
-
-        # Not Halfling, No Advantage
-        case (False, 0, False):
-            roll_str = "1d20"
-
-        # Not Halfling, Advantage, Reliable
-        case (False, 1, True):
-            roll_str = "2d20kh1mi10"
-
-        # Not Halfling, Advantage
-        case (False, 1, False):
-            roll_str = "2d20kh1"
-
-        # Not Halfling, Double Advantage, Reliable
-        case (False, 2, True):
-            roll_str = "3d20kh1mi10"
-
-        # Not Halfling, Double Advantage
-        case (False, 2, False):
-            roll_str = "3d20kh1"
-
-        # If something happens somehow
-        case _:
-            roll_str = "1d20"
+    # Lookup based on the tuple (halfling, adv, reliable)
+    roll_str = roll_dict.get((halfling, adv, reliable), "1d20")
 
     result_d20_obj = vroll(roll_str)
     result_d20 = result_d20_obj.total
@@ -578,7 +532,7 @@ def main(input_list: list[str]) -> tuple(str, str, str, str, str):
     if not (ch := character()):
         return "You Have Been Sneak Attacked by an Error", "You must have an active character", error_img, color
 
-    if (cvar_dict := ch.get_cvar("crafr_dict")):
+    if (cvar_dict := ch.get_cvar("craft_dict")):
         cvar_dict = load_json(cvar_dict)
 
     else:
@@ -714,6 +668,7 @@ def main(input_list: list[str]) -> tuple(str, str, str, str, str):
     if f"{success_cc.value}/{success_cc.max}" != ch.cc_str("Craft: Successes"):
         output_list.append(ch.cc_str("Craft: Successes"))
 
+    prefix = ctx.prefix
 
     if failure_mod > 0:
         output_list.append(f"Failures: {failure_cc.value}/{failure_cc.max} (+{failure_mod})")
@@ -728,10 +683,10 @@ def main(input_list: list[str]) -> tuple(str, str, str, str, str):
         output_list.append(ch.cc_str("Craft: Failures"))
 
     if failure_cc.value >= failure_cc.max:
-        output_list.append(f"\nMaximum failures reached for a {cvar_dict['current_item'][0]}! Please run `!craft clear` as you have ruined your materials.")
+        output_list.append(f"\nMaximum failures reached for a {cvar_dict['current_item'][0]}! Please run `{prefix}craft clear` as you have ruined your materials.")
 
     elif success_cc.value >= success_cc.max:
-        output_list.append(f"\nYou have finished crafting a {cvar_dict['current_item'][0]}! Please run `!craft clear` as you have finished your item.")
+        output_list.append(f"\nYou have finished crafting a {cvar_dict['current_item'][0]}! Please run `{prefix}craft clear` as you have finished your item.")
 
     else:
         pass

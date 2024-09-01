@@ -1,0 +1,292 @@
+embed
+<drac2>
+
+
+def search_list(query: str, item_list: list[str]) -> list[str]|None:
+    """
+    Searches for item in list.
+
+    Args:
+        query (str): The query being made
+        item_list (list): List of items
+
+    Return:
+        list[str]|None: If it finds at least one match, it returns the item(s) in a list, otherwise it returns None
+    """
+
+    # Finds at least 1 match
+    if len(item_results := [item for item in item_list if query.lower() in item.lower()]) > 0:
+        return item_results
+
+    # If it finds no matches
+    else:
+        return None
+
+
+def multiple_match_determine(search_result: list[str], input_value: str) -> str|bool:
+    """
+    Detemines if there is an exact match in search results
+    
+    Args:
+        search_result (list[str]): List of search results
+        input_value (str): Input value to match
+
+    Returns:
+        str|bool: The exact match if found, otherwise False
+    """
+
+    for match in search_result:
+        if match.lower() == input_value.lower():
+            return match
+
+    return False
+
+
+def manage_funds(cost: float, ch: character) -> dict:
+    """
+    Function that handles the withdrawing/adding of funds. Positive will subtract, negatve will add
+    
+    Args:
+        cost (float): Cost in gp to be withdrawn.
+        ch (character): Character object 
+
+    Returns:
+        dict: Money dictionary
+    """
+    
+    gold = int(cost)
+
+    decimal = int(round((cost - gold) * 100))
+
+    silver = decimal // 10
+    copper = decimal % 10
+
+    delta = ch.coinpurse.modify_coins(
+        gp=-1*gold,
+        sp=-1*silver,
+        cp=-1*copper)
+
+    return ch.coinpurse.modify_coins(gp=-1*gold, sp=-1*silver, cp=-1*copper) 
+
+
+def grab_settings_dictionary() -> dict:
+    """
+    Grabs and sets up settings dictionary
+
+    Return:
+        dict: Settings dictionary
+    """
+
+    full_svar_dict = {
+        "Settings": {
+            "lfg_integration": False,
+            "pro_rate_refund": True,
+            "reliable_talent": False,
+            "success_mod_threshold": {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5},
+            "whitelisted_channel_ids": [],
+            "parent_channel_inherit": False,
+            "xp_categories": []    
+        },
+        "Categories": {}
+    }
+
+    if (svar_dict := get_svar("craft_settings")):
+        svar_dict = load_json(svar_dict)
+
+
+        for setting, setting_value in full_svar_dict["Settings"].items():
+
+            if not setting in svar_dict["Settings"].keys():
+                svar_dict["Settings"][setting] = setting_value
+
+        if not "-999" in svar_dict["Settings"]["success_mod_threshold"].keys():
+            svar_dict["Settings"]["success_mod_threshold"]["-999"] = 1
+
+    else:
+        svar_dict = full_svar_dict
+
+    return svar_dict
+
+
+def add_xp(amount: float, ch: character) -> str[list]:
+    """
+    Adds xp to cvars
+
+    Args:
+        amount (float): Amount of xp to give
+        ch (character): Character object
+    
+    Return:
+        (list[str]): Result
+    """
+
+    # Imports xp module
+    using(
+        xplib="bd5e6af1-55e9-4c5b-b814-8f9b447091e7"
+    )
+
+    # Confirms it is a positive float
+    try:
+        amount = floor(abs(amount))
+
+    except:
+        return ['Error', 'Non-number detected with adding xp']
+
+    # Add xp
+    xplib.modify_xp(amount)
+
+    return ["Success", f"{amount}xp rewarded"]
+
+
+def main() -> tuple(str, str, str, str):
+
+    svar_dict = grab_settings_dictionary()
+    current_time = int(time())
+
+    error_img = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png"
+    color = "#CF142B"
+
+    if not (ch := character()):
+        return "You Have Been Sneak Attacked by an Error", "You must have an active character", error_img, color
+
+    if (cvar_dict := ch.get_cvar("craft_dict")):
+        cvar_dict = load_json(cvar_dict)
+
+    else:
+        return "You Have Been Sneak Attacked by an Error", "You must have an active crafting session", error_img, color
+
+    if len(cvar_dict["current_item"]) == 0:
+        return "You Have Been Sneak Attacked by an Error", "You must have an active crafting session", error_img, color
+
+    if not (ch.cc_exists("Craft: Successes") and ch.cc_exists("Craft: Failures")):
+        return "You Have Been Sneak Attacked by an Error", f"Crafting CCs do not exist", error_img, color
+
+    success_cc, failure_cc = ch.cc("Craft: Successes"), ch.cc("Craft: Failures")
+
+
+    item_name, item_category, item_type = cvar_dict["current_item"][0], cvar_dict["current_item"][1], cvar_dict["current_item"][2]
+
+    match (success_cc.value == success_cc.max, failure_cc.value == failure_cc.max):
+
+        case (_, True):
+            thumb = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/fail.png"
+
+            cvar_dict["current_item"] = []
+
+            f = f"{item_name} has been cleared"
+
+        case (True, False):
+            thumb = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png"
+            
+            try:
+                color = svar_dict["Categories"][item_category][item_type][8]
+
+            except:
+
+                try:
+                    color = svar_dict["Categories"][item_category][item_type][7]
+
+                except:
+                    color = ""
+
+            if (search_result := search_list(item_category, svar_dict["Settings"]["xp_categories"])) and (xp_amount := floor(cvar_dict["current_item"][3])) != 0:
+
+                if (match := multiple_match_determine(search_result)):
+
+                    add_xp(xp_amount, ch)
+
+            cvar_dict["current_item"] = []
+
+            if xp_amount != 0
+                f = f"{item_name} has been cleared, you have been awarded {xp_amount}xp for completing this item"
+
+            else:
+                f = f"{item_name} has been cleared"
+
+        case (False, False):
+
+            thumb = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/partial.png"
+
+            try:
+                color = svar_dict["Categories"][item_category][item_type][8]
+
+            except:
+
+                try:
+                    color = svar_dict["Categories"][item_category][item_type][7]
+
+                except:
+                    color = ""
+
+            if svar_dict["Settings"]["pro_rate_refund"] and cvar_dict["current_item"][3] != 0:
+                percent_back = (1 - ((success_cc.value / success_cc.max) + (failure_cc.value /(failure_cc.max * 2)))) * .5
+
+                if percent_back < 0:
+                    percent_back = 0
+
+                money_back = percent_back * cvar_dict["current_item"][3]
+                manage_funds(money_back * -1, ch)
+
+            else:
+                money_back = 0
+
+            item_name = cvar_dict["current_item"].pop(0)
+            item_info_list, cvar_dict["current_item"] = cvar_dict["current_item"], []
+
+            i = 2
+
+            new_item_name = item_name
+
+            while True:
+
+                if (search_result := search_list(new_item_name, cvar_dict["backup"].keys())):
+
+                    if (match := multiple_match_determine(search_result, item_name)):
+                        new_item_name = f"{item_name} {i}"
+                        i += 1
+
+                    else:
+                        break
+
+                else:
+                    break
+
+            cvar_dict["backup"][new_item_name] = item_info_list + [success_cc.value, failure_cc.value, money_back]
+
+            if money_back != 0:
+
+                if (int_money_back := int(money_back)) == money_back:
+                    f = f"{item_name} has been cleared, you have been refunded {int_money_back}gp"
+
+                else:
+                    f = f"{item_name} has been cleared, you have been refunded {money_back}gp"
+
+            else:
+                f = f"{item_name} has been cleared"
+
+            if not item_category in svar_dict["Categories"].keys():
+                cvar_dict["backup"].pop(new_item_name)
+
+            else:
+                if not item_type in svar_dict["Categories"][item_category].keys():
+                    cvar_dict["backup"].pop(new_item_name)
+
+    cvar_dict["log"][str(current_time)] = f"{item_name} has been cleared"
+
+    ch.set_cvar("craft_dict", dump_json(cvar_dict))
+
+    ch.delete_cc("Craft: Successes")
+    ch.delete_cc("Craft: Failures")
+
+    return f"{name} ({ctx.author.display_name}) Has Cleared Their Crafting", f, thumb, color
+
+
+title, f, thumb, color = main()
+
+
+</drac2>
+-title "{{title}}"
+-f "{{f}}"
+-thumb "{{thumb}}"
+-color "{{color}}"
+-footer "{{ctx.prefix}}craft clear | 8/31/24 | ShadowsStride"

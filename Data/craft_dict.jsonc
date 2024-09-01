@@ -10,15 +10,16 @@
         250.0, // Cost of crafting
         "Stealth", // Skill used 
         false, // Bypass/edit
-        1.0 // Success mulitplier
+        1.0 // Success multiplier
     ],
     "backup": {
         "Test Item 2": [
             "uncommon", // Item category
             "permanent", // Item type
-            1698361525, // Time of last crafting
             250.0, // Cost of crafting
             "Religion", // Skill used
+            false, // Bypass/edit
+            1.0, // Success multiplier
             5, //Successes
             0, // Failures
             83.33 // Money back
