@@ -108,6 +108,8 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
 
         title = f"{name} ({ctx.author.display_name}) Alters Their Crafting Failures"
 
+    ch.set_cvar("craft_dict", dump_json(cvar_dict))
+
     return title, "\n".join(output_list), image, ""
 
 

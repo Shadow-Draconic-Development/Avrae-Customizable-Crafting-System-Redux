@@ -517,7 +517,7 @@ def update_cc_settings(svar_dict: dict, cvar_dict: dict, ch: AliasCharacter):
     return, success_cc, failure_cc, item_category, item_type
 
 
-def main(input_list: list[str]) -> tuple(str, str, str, str, str):
+def main(input_list: list[str]) -> tuple(str, str, str, str):
 
     svar_dict = grab_settings_dictionary()
     current_time = int(time())
