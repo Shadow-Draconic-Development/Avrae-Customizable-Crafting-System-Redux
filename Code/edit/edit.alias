@@ -22,6 +22,44 @@ def search_list(query: str, item_list: list[str]) -> list[str]|None:
     else:
         return None
 
+def grab_settings_dictionary() -> dict:
+    """
+    Grabs and sets up settings dictionary
+
+    Return:
+        dict: Settings dictionary
+    """
+
+    full_svar_dict = {
+        "Settings": {
+            "lfg_integration": False,
+            "pro_rate_refund": True,
+            "reliable_talent": False,
+            "success_mod_threshold": {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5},
+            "whitelisted_channel_ids": [],
+            "parent_channel_inherit": False,
+            "xp_categories": []    
+        },
+        "Categories": {}
+    }
+
+    if (svar_dict := get_svar("craft_settings")):
+        svar_dict = load_json(svar_dict)
+
+
+        for setting, setting_value in full_svar_dict["Settings"].items():
+
+            if not setting in svar_dict["Settings"].keys():
+                svar_dict["Settings"][setting] = setting_value
+
+        if not "-999" in svar_dict["Settings"]["success_mod_threshold"].keys():
+            svar_dict["Settings"]["success_mod_threshold"]["-999"] = 1
+
+    else:
+        svar_dict = full_svar_dict
+
+    return svar_dict
+
 
 def main(input_list: list[str]) -> tuple(str, str, str, str):
 
@@ -29,6 +67,20 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
     color = "#CF142B"
 
     current_time = int(time())
+    svar_dict = grab_settings_dictionary()
+
+    if len(svar_dict["Settings"]["whitelisted_channel_ids"]) != 0:
+
+        found = False
+
+        for id_num in svar_dict["Settings"]["whitelisted_channel_ids"]:
+
+            if int(id_num) == ctx.channel_id or (svar_dict["Settings"]["parent_channel_inherit"] and int(id_num) == ctx.channel.parent.id)
+                found = True
+                break
+
+        if not found:
+            return False, "You Have Been Sneak Attacked by an Error", "Invalid channel/thread", error_img, color
 
     if not (ch := character()):
         return "You Have Been Sneak Attacked by an Error", "You must have an active character", error_img, color
@@ -37,7 +89,7 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
         cvar_dict = load_json(cvar_dict)
 
     else:
-        return "You Have Been Sneak Attacked by an Error", "You must have no active crafting sessions", error_img, color
+        return "You Have Been Sneak Attacked by an Error", "You must have no active crafting session", error_img, color
 
     if len(input_list) < 2:
         return "You Have Been Sneak Attacked by an Error", "Expected failure/success and # amount", error_img, color

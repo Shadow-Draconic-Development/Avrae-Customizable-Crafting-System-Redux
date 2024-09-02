@@ -1,0 +1,70 @@
+embed
+<drac2>
+
+
+def produce_output(output_list: list[str], page_num: int = 1):
+
+    final_list = [""]
+    i = 0
+
+    if page_num < 1:
+        page_num = 1
+
+    for content_block in output_list:
+        if len(final_list[i] + content_block) >= 100:
+
+            if len(final_list) == page_num:
+                break
+
+            final_list.append("")
+            i += 1
+
+        final_list[i] += f"{content_block}\n"
+
+    if len(final_list) < page_num:
+        page_num = len(final_list)
+
+    return f"**Page {page_num}/{len(final_list)}**\n" + final_list[page_num - 1]
+
+
+def main(input_list: list[str]) -> tuple(str, str, str, str):
+
+    error_img = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png"
+    color = "#CF142B"
+
+    if not (ch := character()):
+        return "You Have Been Sneak Attacked by an Error", "You must have an active character", error_img, color
+
+    if (cvar_dict := ch.get_cvar("craft_dict")):
+        cvar_dict = load_json(cvar_dict)
+
+    else:
+        return f"{name} ({ctx.author.display_name}) Checks Their Incomplete Items", "None", image, ""
+
+    if len(input_list) == 0:
+        input_list.append(1)
+
+    else:
+
+        try:
+            input_list[0] = int(input_list[0])
+
+        except:
+            return "You Have Been Sneak Attacked by an Error", "Expected a number for page number", error_img, color
+
+    if len(cvar_dict["backup"]) == 0:
+        return f"{name} ({ctx.author.display_name}) Checks Their Incomplete Items", "None", image, ""
+
+    return f"{name} ({ctx.author.display_name}) Checks Their Incomplete Items", produce_output(cvar_dict["backup"].keys(), input_list[0]), image, ""
+
+
+title, f, thumb, color = main(&ARGS&)
+l = "<"
+
+
+</drac2>
+-title "{{title}}"
+-f "{{f}}"
+-thumb "{{thumb}}"
+-color "{{color}}"
+-footer "{{ctx.prefix}}restart list {{l}}#> | 9/2/24 | ShadowsStride"
