@@ -1,0 +1,62 @@
+embed
+<drac2>
+
+
+def main(prefix: str) -> tuple(str, str, str, str):
+
+
+    error_img = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png"
+    color = "#CF142B"
+
+    if not (ch := character()):
+        return "You Have Been Sneak Attacked by an Error", "You must have an active character", error_img, color
+
+    if (cvar_dict := ch.get_cvar("craft_dict")):
+        cvar_dict = load_json(cvar_dict)
+
+    else:
+        return "You Have Been Sneak Attacked by an Error", "You must have no active crafting session", error_img, color
+
+    if len(cvar_dict["current_item"]) == 0:
+        return "You Have Been Sneak Attacked by an Error", "You must have no active crafting session", error_img, color
+
+    if not ch.cc_exists("Craft: Successes") and ch.cc_exists("Craft: Failures"):
+        return "You Have Been Sneak Attacked by an Error", "Crafting CCs do not exist", error_img, color 
+
+    success_cc, failure_cc = ch.cc("Craft: Successes"), ch.cc("Craft: Failures")
+
+    output_list = []
+
+    output_list.append(f"Successes: {success_cc.value}/{success_cc.max}")
+
+    if f"{success_cc.value}/{success_cc.max}" != ch.cc_str("Craft: Successes"):
+        output_list.append(ch.cc_str("Craft: Successes"))
+
+    output_list.append("")
+
+    output_list.append(f"Failures: {failure_cc.value}/{failure_cc.max}")
+
+    if f"{failure_cc.value}/{failure_cc.max}" != ch.cc_str("Craft: Failures"):
+        output_list.append(ch.cc_str("Craft: Failures"))
+
+    if failure_cc.value >= failure_cc.max:
+        output_list.append(f"\n\nMaximum failures reached for a {cvar_dict['current_item'][0]}! Please run `{prefix}craft clear` as you have ruined your materials.")
+
+    elif success_cc.value >= success_cc.max:
+        output_list.append(f"\n\nYou have finished crafting a {cvar_dict['current_item'][0]}! Please run `{prefix}craft clear` as you have finished your item.")
+
+    else:
+        pass
+
+    return f"{name} ({ctx.author.display_name}) Checks Their Current Crafting Session", "\n".join(output_list), image, ""
+
+prefix = ctx.prefix
+title, f, thumb, color = main(prefix)
+
+
+</drac2>
+-title "{{title}}"
+-f "{{f}}"
+-thumb "{{thumb}}"
+-color "{{color}}"
+-footer "{{prefix}}craft progress | 9/2/24 | ShadowsStride"

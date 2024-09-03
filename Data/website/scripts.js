@@ -70,8 +70,8 @@ document.getElementById('addCategoryButton').addEventListener('click', function(
             { label: 'Total Successes', type: 'number' },
             { label: 'Total Failures', type: 'number' },
             { label: 'Cooldown In Seconds', type: 'number' },
-            { label: 'Hex Code', type: 'text' }, // Hex code should be a string
-            { label: 'Item Cost', type: 'number' } // Always include "Item Cost"
+            { label: 'Item Cost', type: 'number' }, // Always include "Item Cost"
+            { label: 'Hex Code', type: 'text' } // Hex code should be a string
         ];
 
         if (isTypeBased) {

@@ -160,7 +160,7 @@ def manage_funds(cost: float, ch: character) -> dict:
 def initial_checks(ch: AliasCharacter, cvar_dict: dict, svar_dict: dict, current_time: int, i: bool) -> tuple(bool, str, str):
 
     # Checks to see if an item is currently being crafted
-    if len(cvar_dict["current_item"]) > 0:
+    if len(cvar_dict["current_item"]) != 0:
         item_category = cvar_dict["current_item"][1]
         item_type = cvar_dict["current_item"][2]
 
@@ -176,7 +176,7 @@ def initial_checks(ch: AliasCharacter, cvar_dict: dict, svar_dict: dict, current
             success_cc = ch.cc("Craft: Successes")
             failure_cc = ch.cc("Craft: Failures")
 
-            if success_cc.value >= svar_dict["Categories"][item_category][item_type][4] * cvar_dict["current_item"][7]:
+            if success_cc.value >= svar_dict["Categories"][item_category][item_type][4] * cvar_dict["current_item"][6]:
                 return False, "Necessary successes has been obtained", "hammer"
 
             if failure_cc.value >= svar_dict["Categories"][item_category][item_type][5]:
@@ -195,7 +195,7 @@ def initial_checks(ch: AliasCharacter, cvar_dict: dict, svar_dict: dict, current
 
         for id_num in svar_dict["Settings"]["whitelisted_channel_ids"]:
 
-            if int(id_num) == ctx.channel_id or (svar_dict["Settings"]["parent_channel_inherit"] and int(id_num) == ctx.channel.parent.id)
+            if int(id_num) == ctx.channel_id or (svar_dict["Settings"]["parent_channel_inherit"] and int(id_num) == ctx.channel.parent.id):
                 found = True
                 break
 
@@ -281,7 +281,6 @@ def find_item_type(item_category: str, item_type: str, svar_dict: dict) -> tuple
 
 def run_crafting_session(svar_dict: dict, cvar_dict: dict, ch: AliasCharacter, current_time: int, adv: int = 0, bonus: bool|str = False, i: bool = False, skill: bool|str = False) -> tuple(str, str, str, str):
 
-
     if skill:
 
         if skill in ["", "clear"]:
@@ -337,6 +336,10 @@ def run_crafting_session(svar_dict: dict, cvar_dict: dict, ch: AliasCharacter, c
 
         try:
             prof = skill_dict[cvar_dict["current_item"][4]].prof
+
+        except:
+            pass
+
 
     if bonus:
         bonus = f"{mod} + {bonus}"
@@ -428,7 +431,7 @@ def run_crafting_session(svar_dict: dict, cvar_dict: dict, ch: AliasCharacter, c
         case 20:
             success_mod =+ abs(int(svar_dict["Categories"][cvar_dict["current_item"][1]][cvar_dict["current_item"][2]][3]))
 
-            if (success_mod > max_succ := max(svar_dict["Settings"]["success_mod_threshold"].values())):
+            if (success_mod > (max_succ := max(svar_dict["Settings"]["success_mod_threshold"].values()))):
                 success_mod = max_succ
 
         case _:
@@ -438,16 +441,16 @@ def run_crafting_session(svar_dict: dict, cvar_dict: dict, ch: AliasCharacter, c
     ch.cc('Craft: Successes').mod(success_mod)
     ch.cc('Craft: Failures').mod(failure_mod)
 
-    cvar_dict["last_item_cooldown"] = svar_dict[cvar_dict["current_item"][1]][cvar_dict["current_item"][2]][6]
+    cvar_dict["last_item_cooldown"] = svar_dict["Categories"][cvar_dict["current_item"][1]][cvar_dict["current_item"][2]][6]
 
-    if ignore_restrictions:
+    if i:
         cvar_dict["current_item"][5] = True
-        cvar_dict["log"][str(current_time)] = f"{cvar_dict["current_item"][0]} Crafting Session `Bypass used`"
+        cvar_dict["log"][str(current_time)] = f"{cvar_dict['current_item'][0]} Crafting Session `Bypass used`"
 
     else:
         cvar_dict["current_item"][5] = False
         cvar_dict["last_craft_time"] = current_time
-        cvar_dict["log"][str(current_time)] = f"{cvar_dict["current_item"][0]} Crafting Session"
+        cvar_dict["log"][str(current_time)] = f"{cvar_dict['current_item'][0]} Crafting Session"
 
 
     ch.set_cvar("craft_dict", dump_json(cvar_dict))
@@ -462,7 +465,7 @@ def create_ccs(ch, cvar_dict, svar_dict,item_name, item_category, item_type, ite
     if smult <= 0:
         smult = .001
 
-    cvar_dict["Current_item"] = [
+    cvar_dict["current_item"] = [
         item_name,
         item_category,
         item_type,
@@ -507,15 +510,15 @@ def update_cc_settings(svar_dict: dict, cvar_dict: dict, ch: AliasCharacter):
 
     success_cc = ch.edit_cc(
         name="Craft: Successes",
-        maxVal=str(ceil(svar_dict[item_category][item_type][4] * succ_mult))
+        maxVal=str(ceil(svar_dict["Categories"][item_category][item_type][4] * succ_mult))
         )
 
     failure_cc = ch.edit_cc(
         name="Craft: Failures",
-        maxVal=str(svar_dict[item_category][item_type][5])
+        maxVal=str(svar_dict["Categories"][item_category][item_type][5])
     )
 
-    return, success_cc, failure_cc, item_category, item_type
+    return success_cc, failure_cc, item_category, item_type
 
 
 def main(input_list: list[str]) -> tuple(str, str, str, str):
@@ -557,18 +560,14 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
     item_cost = 0
 
     # If inputs were given
-    if len(input_list) != 0:
+    if len(input_list) > 0:
 
         # Parses arguments
         adv = args.adv(eadv=True)
         bonus = args.last("b", default=False)
-        skill_name = args.last("s", default=False)
+        skill = args.last("s", default=False)
 
-
-        # Grabs skill, if any.
-        stat = args.last("s", default=False)
-
-        arg_act_list = ["-b", "-i", "adv", "eadv", "dis", "-cmult", "-smult"]
+        arg_act_list = ["-b", "-i", "adv", "eadv", "dis", "-cmult", "-smult", "-s"]
 
         # If new crating session attempt
         if input_list[0].lower() not in arg_act_list:
@@ -593,7 +592,7 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
             if (ch.cc_exists("Craft: Successes") and ch.cc_exists("Craft: Failures")):
                 return "You Have Been Sneak Attacked by an Error", "You have an active crafting session already", error_img, color
 
-            item_category, item_type, category_type, item_cost = find_item_type(item_category, item_type, svar_dict)
+            item_category, item_type, category_type, item_cost = find_item_type(input_list[1], input_list[2], svar_dict)
 
             item_cost = item_cost * cost_mod
 
@@ -614,15 +613,15 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
 
                 new_money_amount = manage_funds(item_cost, ch)
 
-            cvar_dict = create_ccs(cvar_dict)
-            roll_string, success_mod, failure_mod, cvar_dict, success = run_crafting_session(svar_dict, cvar_dict, ch, current_time adv=adv, bonus=bonus, i=ignore_restrictions, skill=skill)
+            cvar_dict = create_ccs(ch, cvar_dict, svar_dict, input_list[0], item_category, item_type, item_cost, succ_mod)
+            roll_string, success_mod, failure_mod, cvar_dict, success = run_crafting_session(svar_dict, cvar_dict, ch, current_time, adv=adv, bonus=bonus, i=ignore_restrictions, skill=skill)
 
         else:
 
             if not (ch.cc_exists("Craft: Successes") and ch.cc_exists("Craft: Failures")):
                 return "You Have Been Sneak Attacked by an Error", f"Crafting CCs do not exist", error_img, color
 
-            roll_string, success_mod, failure_mod, cvar_dict, success = run_crafting_session(svar_dict, cvar_dict, ch, current_time adv=adv, bonus=bonus, i=ignore_restrictions, skill=skill)
+            roll_string, success_mod, failure_mod, cvar_dict, success = run_crafting_session(svar_dict, cvar_dict, ch, current_time, adv=adv, bonus=bonus, i=ignore_restrictions, skill=skill)
 
             item_cost = 0
 
@@ -630,7 +629,7 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
     else:
 
         if not (ch.cc_exists("Craft: Successes") and ch.cc_exists("Craft: Failures")):
-            return "You Have Been Sneak Attacked by an Error", f"Crafting CCs do not exist", error_img, color
+            return "You Have Been Sneak Attacked by an Error", f"You do not have an existing crafting session", error_img, color
 
         roll_string, success_mod, failure_mod, cvar_dict, success = run_crafting_session(svar_dict, cvar_dict, ch, current_time)
 
@@ -648,12 +647,12 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
         output_list.append("**Failure**")
 
     if cvar_dict["current_item"][4] != "":
-        output_list.append(f"Skill used: {cvar_dict["current_item"][4]}")
+        output_list.append(f"Skill used: {cvar_dict['current_item'][4].capitalize()}")
 
     else:
         output_list.append(f"Skill used: None")
 
-    output_list.append(f"DC: {svar_dict['Categories'][item_category][item_type]}\n")
+    output_list.append(f"DC: {svar_dict['Categories'][item_category][item_type][1]}\n")
     output_list.append(roll_string)
     output_list.append("")
 
@@ -728,4 +727,4 @@ d = "-"
 -f "{{f}}"
 -thumb "{{thumb}}"
 -color "{{color}}"
--footer "{{ctx.prefix}}craft {{l}}item name> {{l}}item category> {{l}}item type | cost> {{l}}{{d}}s skill> {{l}}dis/adv/eadv {{l}}{{d}}b #> | 8/30/24 | ShadowsStride"
+-footer "{{ctx.prefix}}craft {{l}}item name> {{l}}item category> {{l}}item type | cost> {{l}}{{d}}s skill> {{l}}dis/adv/eadv {{l}}{{d}}b #>{{'\n'}}8/30/24 | ShadowsStride"

@@ -46,7 +46,7 @@ def main(input_dict: dict, prefix: str, footer: str) -> tuple(str, str):
             case "success_mod_threshold":
 
                 if setting_value != {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5}:
-                    svar_dict["Settings"]["success_mod_threshold"] = setting_value:
+                    svar_dict["Settings"]["success_mod_threshold"] = setting_value
                 
                 else:
                     if "success_mod_threshold" in svar_dict["Settings"].keys():
@@ -55,7 +55,12 @@ def main(input_dict: dict, prefix: str, footer: str) -> tuple(str, str):
             case "whitelisted_channel_ids":
 
                 if len(setting_value) != 0:
-                    svar_dict["Settings"]["whitelisted_channel_ids"] = setting_value
+
+                    if "null" in setting_value[0].lower() and "whitelisted_channel_ids" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("whitelisted_channel_ids")
+                    
+                    else:
+                        svar_dict["Settings"]["whitelisted_channel_ids"] = setting_value
 
                 else:
                     if "whitelisted_channel_ids" in svar_dict["Settings"].keys():
@@ -73,7 +78,12 @@ def main(input_dict: dict, prefix: str, footer: str) -> tuple(str, str):
             case "xp_categories":
 
                 if len(setting_value) != 0:
-                    svar_dict["Settings"]["xp_categories"] = setting_value
+
+                    if "null" in setting_value[0].lower() and "xp_categories" in svar_dict["Settings"].keys():
+                        svar_dict["Settings"].pop("xp_categories")
+
+                    else:
+                        svar_dict["Settings"]["xp_categories"] = setting_value
 
                 else:
                     if "xp_categories" in svar_dict["Settings"].keys():
@@ -89,7 +99,7 @@ input_list = &ARGS&
 prefix = ctx.prefix
 footer = f"{prefix}craft import settings [JSON string] | 8/23/24 | ShadowsStride"
 
-if len(input_list) > 0
+if len(input_list) > 0:
     embed_str, svar_str = main(load_json(input_list[0]), prefix, footer)
 
 else:

@@ -1,0 +1,145 @@
+multiline
+<drac2>
+
+
+def search_list(query: str, item_list: list[str]) -> list[str]|None:
+    """
+    Searches for item in list.
+
+    Args:
+        query (str): The query being made
+        item_list (list): List of items
+
+    Return:
+        list[str]|None: If it finds at least one match, it returns the item(s) in a list, otherwise it returns None
+    """
+
+    # Finds at least 1 match
+    if len(item_results := [item for item in item_list if query.lower() in item.lower()]) > 0:
+        return item_results
+
+    # If it finds no matches
+    else:
+        return None
+
+
+def multiple_match_determine(search_result: list[str], input_value: str) -> str|bool:
+    """
+    Detemines if there is an exact match in search results
+    
+    Args:
+        search_result (list[str]): List of search results
+        input_value (str): Input value to match
+
+    Returns:
+        str|bool: The exact match if found, otherwise False
+    """
+
+    for match in search_result:
+        if match.lower() == input_value.lower():
+            return match
+
+    return False
+
+
+def grab_settings_dictionary() -> dict:
+    """
+    Grabs and sets up settings dictionary
+
+    Return:
+        dict: Settings dictionary
+    """
+
+    full_svar_dict = {
+        "Settings": {
+            "lfg_integration": False,
+            "pro_rate_refund": True,
+            "reliable_talent": False,
+            "success_mod_threshold": {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5},
+            "whitelisted_channel_ids": [],
+            "parent_channel_inherit": False,
+            "xp_categories": []    
+        },
+        "Categories": {}
+    }
+
+    if (svar_dict := get_svar("craft_settings")):
+        svar_dict = load_json(svar_dict)
+
+
+        for setting, setting_value in full_svar_dict["Settings"].items():
+
+            if not setting in svar_dict["Settings"].keys():
+                svar_dict["Settings"][setting] = setting_value
+
+        if not "-999" in svar_dict["Settings"]["success_mod_threshold"].keys():
+            svar_dict["Settings"]["success_mod_threshold"]["-999"] = 1
+
+    else:
+        svar_dict = full_svar_dict
+
+    return svar_dict
+
+
+def main(input_list: list[str]) -> tuple(str, str):
+
+    prefix = ctx.prefix
+    footer = f"{prefix}craft settings remove [item category] <item type> | 9/2/2024 | ShadowsStride"
+
+    if len(input_list) == 0:
+        return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Expected at least an item type' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
+
+    svar_dict = grab_settings_dictionary()
+
+    if (search_result := search_list(input_list[0], svar_dict["Categories"].keys())):
+
+        if len(search_result) == 1:
+            input_list[0] = search_result[0]
+
+        else:
+
+            if (match := multiple_match_determine(search_result, input_list[0])):
+                input_list[0] = match
+
+            else:
+                f_str = "**Multiple Item Categories Found:**\n" + "\n".join(search_result)
+
+                return f"embed -title 'You Have Been Sneak Attacked by an Error' -f '{f_str}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", "" 
+
+    else:
+        return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item category not found' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
+
+    if len(input_list) == 1:
+        svar_dict["Categories"].pop(input_list[0])
+
+        return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item Category removed' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png' -color '#CF142B' -footer '{footer}'", f"svar craft_settings {dump_json(svar_dict)}"
+
+    if (search_result := search_list(input_list[1], svar_dict["Categories"][input_list[0]].keys())):
+
+        if len(search_result) == 1:
+            input_list[1] = search_result[0]
+
+        else:
+            if (match := multiple_match_determine(search_result, input_list[1])):
+                input_list[1] = match
+
+            else:
+                f_str = "**Multiple Item Types Found:**\n" + "\n".join(search_result)
+
+                return f"embed -title 'You Have Been Sneak Attacked by an Error' -f '{f_str}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
+
+    else:
+        return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item type not found' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
+
+
+    svar_dict["Categories"][input_list[0]].pop(input_list[1])
+
+    return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item Type removed' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png' -color '#CF142B' -footer '{footer}'", f"svar craft_settings {dump_json(svar_dict)}"
+
+
+embed_str, svar_str = main(&ARGS&)
+
+
+</drac2>
+{{embed_str}}
+{{svar_str}}

@@ -2,56 +2,101 @@ embed
 <drac2>
 
 
-def main(prefix: str) -> tuple(str, str, str, str):
+def grab_settings_dictionary() -> dict:
+    """
+    Grabs and sets up settings dictionary
+
+    Return:
+        dict: Settings dictionary
+    """
+
+    full_svar_dict = {
+        "Settings": {
+            "lfg_integration": False,
+            "pro_rate_refund": True,
+            "reliable_talent": False,
+            "success_mod_threshold": {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5},
+            "whitelisted_channel_ids": [],
+            "parent_channel_inherit": False,
+            "xp_categories": []    
+        },
+        "Categories": {}
+    }
+
+    if (svar_dict := get_svar("craft_settings")):
+        svar_dict = load_json(svar_dict)
 
 
-    fail_img = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/fail.png"
+        for setting, setting_value in full_svar_dict["Settings"].items():
+
+            if not setting in svar_dict["Settings"].keys():
+                svar_dict["Settings"][setting] = setting_value
+
+        if not "-999" in svar_dict["Settings"]["success_mod_threshold"].keys():
+            svar_dict["Settings"]["success_mod_threshold"]["-999"] = 1
+
+    else:
+        svar_dict = full_svar_dict
+
+    return svar_dict
+
+
+def produce_output(output_list: list[str], page_num: int = 1):
+
+    final_list = [""]
+    i = 0
+
+    if page_num < 1:
+        page_num = 1
+
+    for content_block in output_list:
+        if len(final_list[i] + content_block) >= 250:
+
+            if len(final_list) == page_num:
+                break
+
+            final_list.append("")
+            i += 1
+
+        final_list[i] += f"{content_block}\n"
+
+    if len(final_list) < page_num:
+        page_num = len(final_list)
+
+    return f"**Page {page_num}/{len(final_list)}**\n" + final_list[page_num - 1]
+
+
+def main(input_list: list[str]) -> tuple(str, str, str, str):
+
+    error_img = "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png"
     color = "#CF142B"
 
-    if not (ch := character()):
-        return "You Have Been Sneak Attacked by an Error", "You must have an active character", error_img, color
-
-    if (cvar_dict := ch.get_cvar("craft_dict")):
-        cvar_dict = load_json(cvar_dict)
+    if len(input_list) == 0:
+        input_list.append(1)
 
     else:
-        return "You Have Been Sneak Attacked by an Error", "You must have no active crafting session", error_img, color
 
-    if len(cvar_dict["current_item"]) == 0:
-        return "You Have Been Sneak Attacked by an Error", "You must have no active crafting session", error_img, color
+        try:
+            input_list[0] = int(input_list[0])
 
-    if not ch.cc_exists("Craft: Successes") and ch.cc_exists("Craft: Failures"):
-        return "You Have Been Sneak Attacked by an Error", "Crafting CCs do not exist", error_img, color 
+        except:
+            return "You Have Been Sneak Attacked by an Error", "Expected a number for page number", error_img, color
 
-    success_cc, failure_cc = ch.cc("Craft: Successes"), ch.cc("Craft: Failures")
+    outer_list = []
 
-    output_list = []
+    for category, category_dict in svar_dict["Categories"].items():
 
-    output_list.append(f"Successes: {success_cc.value}/{success_cc.max}")
+        inner_str_list = [f"**{category}:**"]
 
-    if f"{success_cc.value}/{success_cc.max}" != ch.cc_str("Craft: Successes"):
-        output_list.append(ch.cc_str("Craft: Successes"))
+        for item_type in category_dict.keys():
+            inner_str_list.append(item_type)
 
-    output_list.append("")
+        outer_list.append("\n".join(inner_str_list))
 
-    output_list.append(f"Failures: {failure_cc.value}/{failure_cc.max}")
+    return "Server Crafting List", produce_output(outer_list, input_list[0]), "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/list.png", ""
 
-    if f"{failure_cc.value}/{failure_cc.max}" != ch.cc_str("Craft: Failures"):
-        output_list.append(ch.cc_str("Craft: Failures"))
-
-    if failure_cc.value >= failure_cc.max:
-        output_list.append(f"\n\nMaximum failures reached for a {cvar_dict['current_item'][0]}! Please run `{prefix}craft clear` as you have ruined your materials.")
-
-    elif success_cc.value >= success_cc.max:
-        output_list.append(f"\n\nYou have finished crafting a {cvar_dict['current_item'][0]}! Please run `{prefix}craft clear` as you have finished your item.")
-
-    else:
-        pass
-
-    return f"{name} ({ctx.author.display_name}) Checks Their Current Crafting Session", "\n".join(output_list), image, ""
-
-prefix = ctx.prefix
-title, f, thumb, color = main(prefix)
+         
+title, f, thumb, color = main(&ARGS&)
 
 
 </drac2>
@@ -59,4 +104,4 @@ title, f, thumb, color = main(prefix)
 -f "{{f}}"
 -thumb "{{thumb}}"
 -color "{{color}}"
--footer "{{prefix}}craft view | 9/2/24 | ShadowsStride"
+-footer "{{ctx.prefix}}craft view | 9/2/24 | ShadowsStride"

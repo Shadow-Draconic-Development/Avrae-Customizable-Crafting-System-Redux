@@ -57,7 +57,7 @@ def main(input_dict: dict, prefix: str, footer: str) -> tuple(str, str):
             else:
                 item_list[-1] = ""
 
-            svar_dict["Categories"][item_category][item_type] = input_list[item_category][item_type]
+            svar_dict["Categories"][item_category][item_type] = item_list
 
     return f"{prefix}embed -title 'Successfully imported item settings' -footer '{footer}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png'", f"{prefix}svar craft_settings {dump_json(svar_dict)}"
 
@@ -66,7 +66,7 @@ input_list = &ARGS&
 prefix = ctx.prefix
 footer = f"{prefix}craft import item [JSON string] | 8/23/24 | ShadowsStride"
 
-if len(input_list) > 0
+if len(input_list) > 0:
     embed_str, svar_str = main(load_json(input_list[0]), prefix, footer)
 
 else:

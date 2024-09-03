@@ -1,0 +1,89 @@
+embed
+<drac2>
+
+
+def grab_settings_dictionary() -> dict:
+    """
+    Grabs and sets up settings dictionary
+
+    Return:
+        dict: Settings dictionary
+    """
+
+    full_svar_dict = {
+        "Settings": {
+            "lfg_integration": False,
+            "pro_rate_refund": True,
+            "reliable_talent": False,
+            "success_mod_threshold": {"-999": 1, "5": 2, "10": 3, "15": 4, "20": 5},
+            "whitelisted_channel_ids": [],
+            "parent_channel_inherit": False,
+            "xp_categories": []    
+        },
+        "Categories": {}
+    }
+
+    if (svar_dict := get_svar("craft_settings")):
+        svar_dict = load_json(svar_dict)
+
+
+        for setting, setting_value in full_svar_dict["Settings"].items():
+
+            if not setting in svar_dict["Settings"].keys():
+                svar_dict["Settings"][setting] = setting_value
+
+        if not "-999" in svar_dict["Settings"]["success_mod_threshold"].keys():
+            svar_dict["Settings"]["success_mod_threshold"]["-999"] = 1
+
+    else:
+        svar_dict = full_svar_dict
+
+    return svar_dict
+
+
+def main() -> str:
+
+    svar_dict = grab_settings_dictionary()
+
+    output_list = []
+
+    output_list.append(f"**LFG Integration:** {svar_dict['Settings']['lfg_integration']} (Default: False)")
+    output_list.append(f"**Pro-rated Refund:** {svar_dict['Settings']['pro_rate_refund']} (Default: True)")
+    output_list.append(f"**Reliable Talent:** {svar_dict['Settings']['reliable_talent']} (Default: False)")
+    output_list.append(f"**Parent Channel Inherit (for threads):** {svar_dict['Settings']['parent_channel_inherit']} (Default: False)")
+
+    output_list.append("**Success Modifier Thresholds:**")
+    for threshold, threshold_value in svar_dict["Settings"][success_mod_threshold].items():
+        output_list.append(f"{threshold}: {threshold_value}")
+
+    if len(svar_dict["Settings"]["whitelisted_channel_ids"]) == 0:
+        output_list.append(f"**Whitelisted Channel IDs:** All channels")
+
+    else:
+        server_id = ctx.guild.id
+
+        output_list.append(f"**Whitelisted Channel IDs:**")
+        for channel_id in svar_dict["Settings"]["whitelisted_channel_ids"]:
+            output_list.append(f"https://discord.com/channels/{server_id}/{channel_id} ({channel_id})")
+
+    if len(svar_dict["Settings"]["xp_categories"]) == 0:
+        output_list.append("**XP Categories:** None")
+
+    else:
+        output_list.append("**XP Categories:**")
+
+        for category in svar_dict["Settings"]["xp_categories"]:
+            output_list.append(category)
+
+
+    return "\n".join(output_list)
+
+
+f = main()
+
+
+</drac2>
+-title "Server Settings"
+-f "{{f}}"
+-thumb "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/list.png"
+-footer "{{ctx.prefix}}craft settings | 9/2/24 | ShadowsStride"
