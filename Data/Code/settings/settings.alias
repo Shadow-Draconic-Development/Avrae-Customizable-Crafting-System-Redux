@@ -53,7 +53,7 @@ def main() -> str:
     output_list.append(f"**Parent Channel Inherit (for threads):** {svar_dict['Settings']['parent_channel_inherit']} (Default: False)")
 
     output_list.append("**Success Modifier Thresholds:**")
-    for threshold, threshold_value in svar_dict["Settings"][success_mod_threshold].items():
+    for threshold, threshold_value in svar_dict["Settings"]["success_mod_threshold"].items():
         output_list.append(f"{threshold}: {threshold_value}")
 
     if len(svar_dict["Settings"]["whitelisted_channel_ids"]) == 0:
@@ -86,4 +86,4 @@ f = main()
 -title "Server Settings"
 -f "{{f}}"
 -thumb "https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/list.png"
--footer "{{ctx.prefix}}craft settings | 9/2/24 | ShadowsStride"
+-footer "{{ctx.prefix}}craft settings | 9/5/24 | ShadowsStride"

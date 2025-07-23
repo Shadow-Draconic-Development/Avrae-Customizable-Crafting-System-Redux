@@ -35,10 +35,14 @@ def multiple_match_determine(search_result: list[str], input_value: str) -> str|
         str|bool: The exact match if found, otherwise False
     """
 
+    # For each match
     for match in search_result:
+
+        # If exact match (case-insensitive), return match
         if match.lower() == input_value.lower():
             return match
 
+    # If no matches
     return False
 
 
@@ -54,19 +58,23 @@ def manage_funds(cost: float, ch: character) -> dict:
         dict: Money dictionary
     """
     
+    # Grab gold amount
     gold = int(cost)
 
+    # Get decimal portion of cost
     decimal = int(round((cost - gold) * 100))
 
+    # Grab silver and copper from portion of cost
     silver = decimal // 10
     copper = decimal % 10
 
+    # Subtract from coin purse
     delta = ch.coinpurse.modify_coins(
         gp=-1*gold,
         sp=-1*silver,
         cp=-1*copper)
 
-    return ch.coinpurse.modify_coins(gp=-1*gold, sp=-1*silver, cp=-1*copper) 
+    return delta 
 
 
 def grab_settings_dictionary() -> dict:
@@ -289,4 +297,4 @@ title, f, thumb, color = main()
 -f "{{f}}"
 -thumb "{{thumb}}"
 -color "{{color}}"
--footer "{{ctx.prefix}}craft clear | 8/31/24 | ShadowsStride"
+-footer "{{ctx.prefix}}craft clear | 9/5/24 | ShadowsStride"

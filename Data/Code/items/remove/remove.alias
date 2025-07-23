@@ -84,10 +84,10 @@ def grab_settings_dictionary() -> dict:
 def main(input_list: list[str]) -> tuple(str, str):
 
     prefix = ctx.prefix
-    footer = f"{prefix}craft settings remove [item category] <item type> | 9/2/2024 | ShadowsStride"
+    footer = f"{prefix}craft items remove [item category] <item type> | 9/5/2024 | ShadowsStride"
 
     if len(input_list) == 0:
-        return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Expected at least an item type' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
+        return f"{prefix}embed -title 'You Have Been Sneak Attacked by an Error' -f 'Expected at least an item type' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
 
     svar_dict = grab_settings_dictionary()
 
@@ -104,15 +104,15 @@ def main(input_list: list[str]) -> tuple(str, str):
             else:
                 f_str = "**Multiple Item Categories Found:**\n" + "\n".join(search_result)
 
-                return f"embed -title 'You Have Been Sneak Attacked by an Error' -f '{f_str}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", "" 
+                return f"{prefix}embed -title 'You Have Been Sneak Attacked by an Error' -f '{f_str}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", "" 
 
     else:
-        return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item category not found' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
+        return f"{prefix}embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item category not found' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
 
     if len(input_list) == 1:
         svar_dict["Categories"].pop(input_list[0])
 
-        return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item Category removed' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png' -color '#CF142B' -footer '{footer}'", f"svar craft_settings {dump_json(svar_dict)}"
+        return f"{prefix}embed -title 'Successfully Removed Item Category' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png' -color '#CF142B' -footer '{footer}'", f"{prefix}svar craft_settings {dump_json(svar_dict)}"
 
     if (search_result := search_list(input_list[1], svar_dict["Categories"][input_list[0]].keys())):
 
@@ -126,15 +126,15 @@ def main(input_list: list[str]) -> tuple(str, str):
             else:
                 f_str = "**Multiple Item Types Found:**\n" + "\n".join(search_result)
 
-                return f"embed -title 'You Have Been Sneak Attacked by an Error' -f '{f_str}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
+                return f"{prefix}embed -title 'You Have Been Sneak Attacked by an Error' -f '{f_str}' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
 
     else:
-        return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item type not found' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
+        return f"{prefix}embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item type not found' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/error.png' -color '#CF142B' -footer '{footer}'", ""
 
 
     svar_dict["Categories"][input_list[0]].pop(input_list[1])
 
-    return f"embed -title 'You Have Been Sneak Attacked by an Error' -f 'Item Type removed' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png' -color '#CF142B' -footer '{footer}'", f"svar craft_settings {dump_json(svar_dict)}"
+    return f"{prefix}embed -title 'Successfully Removed Item Type' -thumb 'https://raw.githubusercontent.com/Shadow-Draconic-Development/Avrae-Customizable-Crafting-System-Redux/main/Data/images/hammer.png' -color '#CF142B' -footer '{footer}'", f"{prefix}svar craft_settings {dump_json(svar_dict)}"
 
 
 embed_str, svar_str = main(&ARGS&)

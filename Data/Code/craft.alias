@@ -55,8 +55,7 @@ def convert_to_gold(money: str|int) -> float|bool:
     """
 
     # Removes apostrophies and spaces
-    money = str(money).replace(",", "")
-    money = str(money).replace(" ", "")
+    money = str(money).replace(",", "").replace(" ", "")
 
     # Platinum
     money_split = money.lower().split("pp")
@@ -727,4 +726,4 @@ d = "-"
 -f "{{f}}"
 -thumb "{{thumb}}"
 -color "{{color}}"
--footer "{{ctx.prefix}}craft {{l}}item name> {{l}}item category> {{l}}item type | cost> {{l}}{{d}}s skill> {{l}}dis/adv/eadv {{l}}{{d}}b #>{{'\n'}}8/30/24 | ShadowsStride"
+-footer "{{ctx.prefix}}craft {{l}}item name> {{l}}item category> {{l}}item type | cost> {{l}}{{d}}s skill> {{l}}dis/adv/eadv {{l}}{{d}}b #>{{'\n'}}9/5/24 | ShadowsStride"

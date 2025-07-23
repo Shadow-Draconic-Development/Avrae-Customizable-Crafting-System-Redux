@@ -97,4 +97,4 @@ title, f, thumb, color = main(&ARGS&)
 -f "{{f}}"
 -thumb "{{thumb}}"
 -color "{{color}}"
--footer "{{ctx.prefix}}craft restart clear [item name] | 9/2/24 | ShadowsStride"
+-footer "{{ctx.prefix}}craft restart clear [item name] | 9/5/24 | ShadowsStride"

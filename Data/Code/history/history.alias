@@ -1,6 +1,7 @@
 embed
 <drac2>
 
+
 def produce_output(output_list: list[str], page_num: int = 1):
 
     final_list = [""]
@@ -10,7 +11,7 @@ def produce_output(output_list: list[str], page_num: int = 1):
         page_num = 1
 
     for content_block in output_list:
-        if len(final_list[i] + content_block) >= 400:
+        if len(final_list[i] + content_block) >= 75:
 
             if len(final_list) == page_num:
                 break
@@ -23,7 +24,8 @@ def produce_output(output_list: list[str], page_num: int = 1):
     if len(final_list) < page_num:
         page_num = len(final_list)
 
-    return f"**Page {page_num}/{len(final_list)}**\n" + final_list[page_num - 1]
+    return f"**Page {page_num}**\n" + final_list[page_num - 1]
+
 
 def main(input_list: list[str]) -> tuple(str, str, str, str):
 
@@ -37,7 +39,7 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
         cvar_dict = load_json(cvar_dict)
 
     else:
-        return f"{name} ({ctx.author.display_name}) Checks Their Crafting Log", "None", image, "" 
+        return f"{name} ({ctx.author.display_name}) Checks Their Crafting History", "None", image, "" 
 
     if len(input_list) == 0:
         input_list.append(1)
@@ -50,17 +52,10 @@ def main(input_list: list[str]) -> tuple(str, str, str, str):
         except:
             return "You Have Been Sneak Attacked by an Error", "Expected a number for page number", error_img, color
 
-    log_dict = {int(key): value for key, value in cvar_dict["log"].items()}
+    if len(cvar_dict["history"]) == 0:
+        return f"{name} ({ctx.author.display_name}) Checks Their Crafting History", "None", image, ""
 
-    if len(log_dict) == 0:
-        return f"{name} ({ctx.author.display_name}) Checks Their Crafting Log", "None", image, ""
-
-    log_times = list(log_dict.keys())
-    log_times.sort(True)
-
-    f = produce_output([f"<t:{timestamp}:d> <t:{timestamp}:T> {log_dict[timestamp]}" for timestamp in log_times], input_list[0])
-
-    return f"{name} ({ctx.author.display_name}) Checks Their Crafting Log", f, image, ""
+    return f"{name} ({ctx.author.display_name}) Checks Their Crafting History", produce_output(cvar_dict["history"], input_list[0]), image, ""
 
 
 title, f, thumb, color = main(&ARGS&)
@@ -72,4 +67,4 @@ l = "<"
 -f "{{f}}"
 -thumb "{{thumb}}"
 -color "{{color}}"
--footer "{{ctx.prefix}}craft log {{l}}#> | 8/31/24 | ShadowsStride"
+-footer "{{ctx.prefix}}craft history {{l}}#> | 9/5/24 | ShadowsStride"

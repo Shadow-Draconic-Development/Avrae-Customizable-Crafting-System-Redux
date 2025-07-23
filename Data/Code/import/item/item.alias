@@ -64,7 +64,7 @@ def main(input_dict: dict, prefix: str, footer: str) -> tuple(str, str):
 
 input_list = &ARGS&
 prefix = ctx.prefix
-footer = f"{prefix}craft import item [JSON string] | 8/23/24 | ShadowsStride"
+footer = f"{prefix}craft import item [JSON string] | 9/5/24 | ShadowsStride"
 
 if len(input_list) > 0:
     embed_str, svar_str = main(load_json(input_list[0]), prefix, footer)

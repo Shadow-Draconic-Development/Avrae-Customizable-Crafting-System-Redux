@@ -44,7 +44,7 @@ def multiple_match_determine(search_result: list[str], input_value: str) -> str|
 
 def manage_funds(cost: float, ch: character) -> dict:
     """
-    Function that handles the withdrawing/adding of funds. Positive will subtract, negatve will add
+    Function that handles the withdrawing/adding of funds. Positive will subtract, negative will add
     
     Args:
         cost (float): Cost in gp to be withdrawn.
@@ -251,4 +251,4 @@ l = "<"
 -f "{{f}}"
 -thumb "{{thumb}}"
 -color "{{color}}"
--footer "{{prefix}}craft restart {{l}}item name> | 8/31/24 | ShadowsStride"
+-footer "{{prefix}}craft restart {{l}}item name> | 9/5/24 | ShadowsStride"
